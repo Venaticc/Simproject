@@ -25,7 +25,7 @@ for i in range (1000000):
         omega = -(((2*g)/L)*(((cos((O_0))-cos((B)))))**(1/2))
     print(O_0,omega)
 print(omega,O_0)
-#*copysign(1, O_0)
+
 
 
 
