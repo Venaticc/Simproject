@@ -5,6 +5,9 @@ import numpy as np
 def f(x,y):
     return -0.5*x*y
 
+def g(x,y):
+    return
+
 h = 0.01
 y = 0.1
 x = -5
