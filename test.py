@@ -23,3 +23,11 @@ for i in range(int((x_end-x)/h)):
 
 plt.plot(x_list, y_list)
 plt.show()
+
+"""
+Lösa diffekvationer (först matematisk pendel och sedan dubbelpendel) med stegmetoderna Euler, Runge-Kutta och bakvänd Euler
+Beräkna energis bevarande för att på så sätt bestämma hur verklighetstrogna de är
+Potentiellt, om tid finns, pröva att bestämma Ljapunov-exponenten, som är ett mått på kaos
+
+
+"""

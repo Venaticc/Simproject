@@ -24,7 +24,7 @@ def ftheta(theta):
 
 x = length*b
 y = length*b*theta_0
-t_end = 1.3
+t_end = m.sqrt(2)+0.01
 delta_t = 0.001
 
 def Runftheta(theta):
