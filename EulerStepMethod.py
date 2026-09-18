@@ -43,6 +43,11 @@ def Runftheta(theta):
 
 Runftheta(theta_0)
 
+
+
+
+
+
 def Runfxy(x,y):
     x_list = []
     y_list = []
