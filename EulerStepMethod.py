@@ -20,24 +20,35 @@ def fx(x,y):
 def fy(x,y):
     return -m.sqrt(2*g/length*(carc(x/y)-b))*carc(x/y)*x/y
 def ftheta(theta):
-    return -m.sqrt(2*g/length*(carc(x/y)-b))
+    return -m.sqrt(2*g/length*(carc(theta)-b))
 
 x = length*b
 y = length*b*theta_0
-t_end = 1
+t_end = m.sqrt(2)+0.01
 delta_t = 0.001
 
 def Runftheta(theta):
+    theta = theta - 0.0001
     theta_list = []
     for i in range(int(t_end/delta_t)):
         print(i)
+        print(m.cos(theta), b)
         theta = theta + delta_t * ftheta(theta)
         theta_list.append(theta)
-    x_list = map(lambda theta: length*m.cos(theta), theta_list)
-    y_list = map(lambda theta: length*m.sin(theta), theta_list)
+    x_list = list(map(lambda theta: length*m.cos(theta), theta_list))
+    y_list = list(map(lambda theta: length*m.sin(theta), theta_list))
+    print(x_list, y_list)
     plt.scatter(x_list, y_list)
+    plt.show()
 
 Runftheta(theta_0)
+
+def Runftheta2(theta_0):
+    theta = theta_0
+    theta_list = []
+    for i in range(int(t_end/delta_t)):
+        theta = theta + delta_t * (-m.cos(theta))*length/g
+
 
 def Runfxy(x,y):
     x_list = []
