@@ -5,6 +5,7 @@ theta_0 = 0.1
 omega_0 = 0
 g_da = 9.82
 length = 0.10
+mass = 1
 
 h = 0.001
 t_end = 10
@@ -13,7 +14,9 @@ t_end = 10
 def alphafunc(y,g,l):
     return -m.sin(y)*g/l
 
-def Energy_M(theta_list, omega_list, g_da, l):
+def Energy_M(theta_list, omega_list, g_da, l, mass):
+    Energy_list = list(map(lambda theta, w: mass*l*(0.5*l*w**2 + g_da*(1 - m.cos(theta))), theta_list, omega_list))
+    return Energy_list
 
 # runs the sim
 def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
@@ -35,6 +38,17 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
     return theta_list, omega_list, t_list
 
 theta_list, omega_list, t_list = RunThetaSim(theta_0, t_end, h, omega_0, g_da, length)
+Energy_list = Energy_M(theta_list, omega_list, g_da, length, mass)
 print(theta_list)
+print(Energy_list)
+plt.subplot(2,1,1)
 plt.plot(t_list,theta_list)
+plt.title('Theta Simulation')
+plt.xlabel('t')
+plt.ylabel('theta')
+plt.subplot(2,1,2)
+plt.plot(t_list,Energy_list)
+plt.title('Energy Simulation')
+plt.xlabel('t')
+plt.ylabel('energy')
 plt.show()
