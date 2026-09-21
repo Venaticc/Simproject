@@ -13,6 +13,8 @@ t_end = 10
 def alphafunc(y,g,l):
     return -m.sin(y)*g/l
 
+def Energy_M(omega_list,g,l)
+
 # runs the sim
 def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
     num_steps = int(t_end/h)                    # steps
