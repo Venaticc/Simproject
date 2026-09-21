@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 theta_0 = 0.1
 omega_0 = 0
 g_da = 9.82
-length = 0.10
+length = 1
 mass = 1
 
 h = 0.001
@@ -13,6 +13,24 @@ t_end = 10
 # angular acceleration
 def alphafunc(y,g,l):
     return -m.sin(y)*g/l
+
+def StDevPop(list_obj): # Standard deviation for a population, not a sample
+    mean = np.mean(list_obj)
+    stdev = np.std(list_obj,ddof=0)
+    return mean,stdev
+
+def PlotStDev(list_obj,sigmawidth=5,res=100):
+    mean,stdev = StDevPop(list_obj)
+    var = stdev*stdev
+    start = mean - sigmawidth*stdev
+    end = mean + sigmawidth*stdev
+    x_list = np.linspace(start,end,res)
+    print(x_list)
+    p = lambda x: m.exp(-((x-mean)**2/(2*var)))/(m.sqrt(2*m.pi)*stdev)
+    y_list = list(map(p,x_list))
+    plt.plot(x_list,y_list)
+    plt.show()
+
 
 def Energy_M(theta_list, omega_list, g_da, l, mass):
     Energy_list = list(map(lambda theta, w: mass*l*(0.5*l*w**2 + g_da*(1 - m.cos(theta))), theta_list, omega_list))
@@ -37,6 +55,16 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
 
     return theta_list, omega_list, t_list
 
+
+
+
+
+
+
+
+
+
+
 theta_list, omega_list, t_list = RunThetaSim(theta_0, t_end, h, omega_0, g_da, length)
 Energy_list = Energy_M(theta_list, omega_list, g_da, length, mass)
 print(theta_list)
@@ -52,3 +80,5 @@ plt.title('Energy Simulation')
 plt.xlabel('t')
 plt.ylabel('energy')
 plt.show()
+print(StDevPop(Energy_list))
+PlotStDev(Energy_list,5)
