@@ -14,10 +14,12 @@ t_end = 10
 def alphafunc(y,g,l):
     return -m.sin(y)*g/l
 
-def StDevPop(list_obj): # Standard deviation for a population, not a sample
+# Standard deviation for a population, not a sample
+def StDevPop(list_obj):
     mean = np.mean(list_obj)
     stdev = np.std(list_obj,ddof=0)
     return mean,stdev
+
 
 def PlotStDev(list_obj,sigmawidth=5,res=100):
     mean,stdev = StDevPop(list_obj)
@@ -35,6 +37,7 @@ def PlotStDev(list_obj,sigmawidth=5,res=100):
 def Energy_M(theta_list, omega_list, g_da, l, mass):
     Energy_list = list(map(lambda theta, w: mass*l*(0.5*l*w**2 + g_da*(1 - m.cos(theta))), theta_list, omega_list))
     return Energy_list
+
 
 # runs the sim
 def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
@@ -55,6 +58,7 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
 
     return theta_list, omega_list, t_list
 
+
 def ThetaEnergyShiftWave(theta_list, Energy_list):
     theta_list = np.array(theta_list)/max(theta_list)
     Energy_list = np.array(Energy_list)/max(Energy_list)
@@ -62,8 +66,6 @@ def ThetaEnergyShiftWave(theta_list, Energy_list):
         raise ValueError('Theta and Energy list must have same length')
     wave = list(map(lambda a,b: a-b, theta_list, Energy_list))
     return wave
-
-
 
 
 theta_list, omega_list, t_list = RunThetaSim(theta_0, t_end, h, omega_0, g_da, length)
