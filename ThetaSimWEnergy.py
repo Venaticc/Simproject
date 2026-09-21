@@ -55,12 +55,13 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
 
     return theta_list, omega_list, t_list
 
-
-
-
-
-
-
+def ThetaEnergyShiftWave(theta_list, Energy_list):
+    theta_list = np.array(theta_list)/max(theta_list)
+    Energy_list = np.array(Energy_list)/max(Energy_list)
+    if len(theta_list) != len(Energy_list):
+        raise ValueError('Theta and Energy list must have same length')
+    wave = list(map(lambda a,b: a-b, theta_list, Energy_list))
+    return wave
 
 
 
@@ -80,5 +81,10 @@ plt.title('Energy Simulation')
 plt.xlabel('t')
 plt.ylabel('energy')
 plt.show()
-print(StDevPop(Energy_list))
-PlotStDev(Energy_list,5)
+
+wave = ThetaEnergyShiftWave(theta_list, Energy_list)
+plt.plot(t_list,wave)
+plt.show()
+
+#print(StDevPop(Energy_list))
+#PlotStDev(Energy_list,5)
