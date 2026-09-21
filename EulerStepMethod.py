@@ -43,9 +43,11 @@ def Runftheta(theta):
 
 Runftheta(theta_0)
 
-
-
-
+def Runftheta2(theta_0):
+    theta = theta_0
+    theta_list = []
+    for i in range(int(t_end/delta_t)):
+        theta = theta + delta_t * (-m.cos(theta))*length/g
 
 
 def Runfxy(x,y):
