@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 theta_0 = 0.1
 omega_0 = 0
 g_da = 9.82
-length = 1
+length = 0.1
 mass = 1
 
 h = 0.001
@@ -20,7 +20,7 @@ def StDevPop(list_obj):
     stdev = np.std(list_obj,ddof=0)
     return mean,stdev
 
-
+# plot normal dist. for a list
 def PlotStDev(list_obj,sigmawidth=5,res=100):
     mean,stdev = StDevPop(list_obj)
     var = stdev*stdev
@@ -33,7 +33,7 @@ def PlotStDev(list_obj,sigmawidth=5,res=100):
     plt.plot(x_list,y_list)
     plt.show()
 
-
+# calculates total mechanical energy
 def Energy_M(theta_list, omega_list, g_da, l, mass):
     Energy_list = list(map(lambda theta, w: mass*l*(0.5*l*w**2 + g_da*(1 - m.cos(theta))), theta_list, omega_list))
     return Energy_list
@@ -54,18 +54,18 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
         omega_list[i+1] = omega                 # saves angular velocity
         theta_list[i+1] = theta                 # saves angle
 
-    t_list = np.linspace(0,t_end,num_steps+1)   # time_stamps
+    t_list = np.linspace(0,t_end,num_steps+1)   # time_stamps§
 
     return theta_list, omega_list, t_list
 
-
+# wave differance between the angle curve and energy curve
 def ThetaEnergyShiftWave(theta_list, Energy_list):
-    theta_list = np.array(theta_list)/max(theta_list)
-    Energy_list = np.array(Energy_list)/max(Energy_list)
+    theta_list = (np.array(theta_list) - np.mean(theta_list))/max(theta_list)
+    Energy_list = (np.array(Energy_list) - np.mean(Energy_list))/max(Energy_list)
     if len(theta_list) != len(Energy_list):
         raise ValueError('Theta and Energy list must have same length')
     wave = list(map(lambda a,b: a-b, theta_list, Energy_list))
-    return wave
+    return wave, theta_list, Energy_list
 
 
 theta_list, omega_list, t_list = RunThetaSim(theta_0, t_end, h, omega_0, g_da, length)
@@ -84,8 +84,11 @@ plt.xlabel('t')
 plt.ylabel('energy')
 plt.show()
 
-wave = ThetaEnergyShiftWave(theta_list, Energy_list)
-plt.plot(t_list,wave)
+wave1, wave2, wave3 = ThetaEnergyShiftWave(theta_list, Energy_list)
+
+plt.plot(t_list,wave1)
+plt.plot(t_list,wave2)
+plt.plot(t_list,wave3)
 plt.show()
 
 #print(StDevPop(Energy_list))
