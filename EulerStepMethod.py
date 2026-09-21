@@ -24,7 +24,7 @@ def ftheta(theta):
 
 x = length*b
 y = length*b*theta_0
-t_end = m.sqrt(2)+0.01
+t_end = m.sqrt(2)+0.05
 delta_t = 0.001
 
 def Runftheta(theta):
@@ -35,10 +35,11 @@ def Runftheta(theta):
         print(m.cos(theta), b)
         theta = theta + delta_t * ftheta(theta)
         theta_list.append(theta)
-    x_list = list(map(lambda theta: length*m.cos(theta), theta_list))
+    #x_list = list(map(lambda theta: length*m.cos(theta), theta_list))
+    t_list = np.linspace(0, t_end, int(t_end/delta_t))
     y_list = list(map(lambda theta: length*m.sin(theta), theta_list))
-    print(x_list, y_list)
-    plt.scatter(x_list, y_list)
+    print(t_list, y_list)
+    plt.scatter(t_list, y_list)
     plt.show()
 
 Runftheta(theta_0)
