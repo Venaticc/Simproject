@@ -1,17 +1,28 @@
-# This is a sample Python script.
+from math import *
+import matplotlib.pyplot as plt
+x=[0]
+y=[0.1]
+w = 0
+h = 0.001
+g = 9.82
+l = 0.10
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
-
-'hejkon bejkon'
-# Press the green button in the gutter to run the script.
-#if __name__ == '__main__':
-    #print_hi('PyCharm')
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+def hogerlede(x,y,g,l):
+    f = -sin(y)*g/l
+    return f
+B = 5/h
+B = int(B)
+for i in range(0,B):
+    X = x[i]
+    Y = y[i]
+    dervitiv = hogerlede(X,Y,g,l)
+    X = h+X
+    w = w+dervitiv*h
+    Y = Y+w*h
+    if Y>0.9999:
+        print (Y,X)
+    x.append(X)
+    y.append(Y)
+print(Y)
+plt.plot(x,y)
+plt.show()
