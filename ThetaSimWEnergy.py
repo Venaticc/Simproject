@@ -1,14 +1,16 @@
 import math as m
 import numpy as np
+import sympy as sp
+from sympy.abc import x
 import matplotlib.pyplot as plt
-theta_0 = 0.1
+theta_0 = 0.5
 omega_0 = 0
 g_da = 9.82
 length = 0.1
 mass = 1
 
 h = 0.001
-t_end = 10
+t_end = 3.5*2*m.pi*m.sqrt(length/g_da)
 
 # angular acceleration
 def alphafunc(y,g,l):
@@ -38,6 +40,9 @@ def Energy_M(theta_list, omega_list, g_da, l, mass):
     Energy_list = list(map(lambda theta, w: mass*l*(0.5*l*w**2 + g_da*(1 - m.cos(theta))), theta_list, omega_list))
     return Energy_list
 
+# Not derived by us, found on fysikprov.se
+def TruePeriodTime(theta_0):
+    return sp.integrate((2/sp.pi))
 
 # runs the sim
 def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
@@ -59,19 +64,18 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
     return theta_list, omega_list, t_list
 
 # wave differance between the angle curve and energy curve
-def ThetaEnergyShiftWave(theta_list, Energy_list):
-    theta_list = (np.array(theta_list) - np.mean(theta_list))/max(theta_list)
-    Energy_list = (np.array(Energy_list) - np.mean(Energy_list))/max(Energy_list)
-    if len(theta_list) != len(Energy_list):
-        raise ValueError('Theta and Energy list must have same length')
-    wave = list(map(lambda a,b: a-b, theta_list, Energy_list))
-    return wave, theta_list, Energy_list
+def ThetaEnergyShiftWave(theta_obj, Energy_obj):
+    theta_obj = (np.array(theta_obj) - np.mean(theta_obj))/max(theta_obj - np.mean(theta_obj))
+    Energy_obj = (np.array(Energy_obj) - np.mean(Energy_obj))/max(Energy_obj - np.mean(Energy_obj))
+    if len(theta_obj) != len(Energy_obj):
+        raise ValueError('Theta and Energy objects must have same length')
+    wave = np.subtract(Energy_obj,theta_obj)
+    wave = wave/max(wave)
+    return wave, theta_obj, Energy_obj
 
 
 theta_list, omega_list, t_list = RunThetaSim(theta_0, t_end, h, omega_0, g_da, length)
 Energy_list = Energy_M(theta_list, omega_list, g_da, length, mass)
-print(theta_list)
-print(Energy_list)
 plt.subplot(2,1,1)
 plt.plot(t_list,theta_list)
 plt.title('Theta Simulation')
@@ -86,9 +90,10 @@ plt.show()
 
 wave1, wave2, wave3 = ThetaEnergyShiftWave(theta_list, Energy_list)
 
-plt.plot(t_list,wave1)
-plt.plot(t_list,wave2)
-plt.plot(t_list,wave3)
+lw = 0.75
+plt.plot(t_list,wave1, linewidth=lw)
+plt.plot(t_list,wave2, linewidth=lw)
+plt.plot(t_list,wave3, linewidth=lw)
 plt.show()
 
 #print(StDevPop(Energy_list))
