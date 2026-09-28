@@ -40,6 +40,7 @@ def PlotStDev(list_obj,sigmawidth=5,res=100):
     p = lambda x: m.exp(-((x-mean)**2/(2*var)))/(m.sqrt(2*m.pi)*stdev)
     y_list = list(map(p,x_list))
     plt.plot(x_list,y_list)
+    plt.title("sigma = "+str(stdev)+", mean = "+str(mean))
     plt.show()
 
 # calculates total mechanical energy
@@ -62,7 +63,7 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
         omega_list[i+1] = omega                 # saves angular velocity
         theta_list[i+1] = theta                 # saves angle
 
-    t_list = np.linspace(0,t_end,num_steps+1)   # time_stamps§
+    t_list = np.linspace(0,t_end,num_steps+1)   # time_stamps
 
     return theta_list, omega_list, t_list
 
@@ -75,7 +76,6 @@ def ThetaEnergyShiftWave(theta_obj, Energy_obj):
     wave = np.subtract(Energy_obj,theta_obj)
     wave = wave/max(wave)
     return wave, theta_obj, Energy_obj
-
 
 theta_list, omega_list, t_list = RunThetaSim(theta_0, t_end, h, omega_0, g_da, length)
 Energy_list = Energy_M(theta_list, omega_list, g_da, length, mass)
@@ -100,4 +100,4 @@ plt.plot(t_list,wave3, linewidth=lw)
 plt.show()
 
 #print(StDevPop(Energy_list))
-#PlotStDev(Energy_list,5)
+PlotStDev(Energy_list,5)
