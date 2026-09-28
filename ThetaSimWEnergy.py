@@ -32,13 +32,15 @@ def StDevPop(list_obj):
 # plot normal dist. for a list
 def PlotStDev(list_obj,sigmawidth=5,res=100):
     mean,stdev = StDevPop(list_obj)
+
     var = stdev*stdev
     start = mean - sigmawidth*stdev
     end = mean + sigmawidth*stdev
+
     x_list = np.linspace(start,end,res)
-    print(x_list)
-    p = lambda x: m.exp(-((x-mean)**2/(2*var)))/(m.sqrt(2*m.pi)*stdev)
-    y_list = list(map(p,x_list))
+    pdf = lambda x: m.exp(-((x-mean)**2/(2*var)))/(m.sqrt(2*m.pi)*stdev)
+    y_list = list(map(pdf,x_list))
+
     plt.plot(x_list,y_list)
     plt.title("sigma = "+str(stdev)+", mean = "+str(mean))
     plt.show()
@@ -51,15 +53,19 @@ def Energy_M(theta_list, omega_list, g_da, l, mass):
 # runs the sim
 def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
     num_steps = int(t_end/h)                    # steps
+
     theta_list = np.zeros(num_steps+1)          # list of angles
     theta_list[0] = theta_0                     # saves first angle
     omega_list = np.zeros(num_steps+1)          # list of angular velocities
     omega_list[0] = omega_0                     # saves first angular velocity
+
     for i in np.arange(int(t_end/h)):           # recursive step siM
+
         theta = theta_list[i]                   # gets angle
         alpha = alphafunc(theta,g_da,length)    # current angular acceleration
         omega = omega + alpha*h                 # angle velocity
         theta = theta+omega*h                   # angle
+
         omega_list[i+1] = omega                 # saves angular velocity
         theta_list[i+1] = theta                 # saves angle
 
@@ -71,8 +77,10 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
 def ThetaEnergyShiftWave(theta_obj, Energy_obj):
     theta_obj = (np.array(theta_obj) - np.mean(theta_obj))/max(theta_obj - np.mean(theta_obj))
     Energy_obj = (np.array(Energy_obj) - np.mean(Energy_obj))/max(Energy_obj - np.mean(Energy_obj))
+
     if len(theta_obj) != len(Energy_obj):
         raise ValueError('Theta and Energy objects must have same length')
+
     wave = np.subtract(Energy_obj,theta_obj)
     wave = wave/max(wave)
     return wave, theta_obj, Energy_obj
@@ -101,3 +109,12 @@ plt.show()
 
 #print(StDevPop(Energy_list))
 PlotStDev(Energy_list,5)
+
+"""
+Runge-Kutta:
+f_1 = f(x, y)
+f_2 = f(x + h / 2, y + f_1 * h / 2)
+f_3 = f(x + h / 2, y + f_2 * h / 2)
+f_4 = f(x + h, y + f_3 * h)
+y = y + h * (f_1 + 2 * f_2 + 2 * f_3 + f_4) / 6
+"""
