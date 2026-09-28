@@ -50,9 +50,9 @@ def Energy_M(theta_list, omega_list, g_da, l, mass):
 # runs the sim
 def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
     num_steps = int(t_end/h)                    # steps
-    theta_list = list(np.zeros(num_steps+1))    # list of angles
+    theta_list = np.zeros(num_steps+1)          # list of angles
     theta_list[0] = theta_0                     # saves first angle
-    omega_list = list(np.zeros(num_steps+1))    # list of angular velocities
+    omega_list = np.zeros(num_steps+1)          # list of angular velocities
     omega_list[0] = omega_0                     # saves first angular velocity
     for i in np.arange(int(t_end/h)):           # recursive step siM
         theta = theta_list[i]                   # gets angle
