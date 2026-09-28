@@ -3,6 +3,13 @@ import numpy as np
 import sympy as sp
 from sympy.abc import x
 import matplotlib.pyplot as plt
+
+# Not derived by us, found on fysikprov.se
+def TruePeriodTime(theta_0):
+    f = ((2/m.pi)/(sp.sqrt(1 - (sp.sin(theta_0/2)*sp.sin(x))**2)))
+    return sp.integrate(f, (x, 0, sp.pi/2))
+
+
 theta_0 = 0.5
 omega_0 = 0
 g_da = 9.82
@@ -10,7 +17,7 @@ length = 0.1
 mass = 1
 
 h = 0.001
-t_end = 3.5*2*m.pi*m.sqrt(length/g_da)
+t_end = 3.5*2*m.pi*m.sqrt(length/g_da)*TruePeriodTime(theta_0)
 
 # angular acceleration
 def alphafunc(y,g,l):
@@ -37,12 +44,8 @@ def PlotStDev(list_obj,sigmawidth=5,res=100):
 
 # calculates total mechanical energy
 def Energy_M(theta_list, omega_list, g_da, l, mass):
-    Energy_list = list(map(lambda theta, w: mass*l*(0.5*l*w**2 + g_da*(1 - m.cos(theta))), theta_list, omega_list))
+    Energy_list = list(map(lambda theta, omega: mass*l*(0.5*l*omega**2 + g_da*(1 - m.cos(theta))), theta_list, omega_list))
     return Energy_list
-
-# Not derived by us, found on fysikprov.se
-def TruePeriodTime(theta_0):
-    return sp.integrate((2/sp.pi))
 
 # runs the sim
 def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
