@@ -20,7 +20,7 @@ h = 0.001
 t_end = 3.5*2*m.pi*m.sqrt(length/g_da)*TruePeriodTime(theta_0)
 
 # angular acceleration
-def alphafunc(y,g,l):
+def AlphaFunc(y,g,l):
     return -m.sin(y)*g/l
 
 # Standard deviation for a population, not a sample
@@ -62,7 +62,7 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
     for i in np.arange(int(t_end/h)):           # recursive step siM
 
         theta = theta_list[i]                   # gets angle
-        alpha = alphafunc(theta,g_da,length)    # current angular acceleration
+        alpha = AlphaFunc(theta,g_da,length)    # current angular acceleration
         omega = omega + alpha*h                 # angle velocity
         theta = theta+omega*h                   # angle
 
