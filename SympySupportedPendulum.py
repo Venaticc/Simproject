@@ -10,6 +10,7 @@ x0 = sp.Function('x0')(t)   # theta
 x1 = x0.diff(t)             # theta prime
 x2 = x1.diff(t)             # theta bis
 
+X0 = sp.Function('X0')(t)
 X1 = sp.Function('X1')(t)   # replacement function, magic trick
 X2 = sp.Symbol('X2')
 
@@ -17,6 +18,7 @@ y0 = sp.Function('y0')(t)   # phi
 y1 = y0.diff(t)             # phi prime
 y2 = y1.diff(t)             # phi bis
 
+Y0 = sp.Function('Y0')(t)
 Y1 = sp.Function('Y1')(t)   # also magic tricks
 Y2 = sp.Symbol('Y2')
 
@@ -26,6 +28,8 @@ m_1 = sp.Symbol('m_1')
 m_2 = sp.Symbol('m_2')
 l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
+
+symbolvaluedict = {g: 9.82, m_1: 1, m_2: 2, l_1: 1, l_2: 3}
 
 # Kinetic energy
 E_k1 = m_1 * l_1 * l_1 * x1 * x1
@@ -44,11 +48,13 @@ L = T - V
 a = (L.diff(x1).diff(t) - L.diff(x0))
 a = a.subs(x0.diff(t),X1).subs(y0.diff(t),Y1)
 a = a.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
+a = a.subs(x0,X0).subs(y0,Y0)
 
 # with respect to phi
 b = (L.diff(y1).diff(t) - L.diff(y0))
 b = b.subs(x0.diff(t),X1).subs(y0.diff(t),Y1)
 b = b.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
+b = b.subs(x0,X0).subs(y0,Y0)
 
 # solve and covert to list
 eqa = sp.Eq(a,0)    # a = 0
@@ -57,5 +63,9 @@ sol_dict = sp.solve([eqa, eqb], X2, Y2) # solve for x'' and y''
 sol_keys = list(sol_dict.keys())
 sol_vals = list(sol_dict.values())
 
-print(sol_keys)
-print(sol_vals)
+# Finished functions
+X2 = sp.simplify(sol_vals[0].subs(symbolvaluedict))
+Y2 = sp.simplify(sol_vals[1].subs(symbolvaluedict))
+
+print(X2)
+print(Y2)
