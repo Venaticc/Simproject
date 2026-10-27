@@ -56,14 +56,14 @@ b = b.subs(x0.diff(t),X1).subs(y0.diff(t),Y1)
 b = b.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
 b = b.subs(x0,X0).subs(y0,Y0)
 
-# solve and covert to list
+# solve and convert to list
 eqa = sp.Eq(a,0)    # a = 0
 eqb = sp.Eq(b, 0)   # b = 0
 sol_dict = sp.solve([eqa, eqb], X2, Y2) # solve for x'' and y''
 sol_keys = list(sol_dict.keys())
 sol_vals = list(sol_dict.values())
 
-# Finished functions
+# Finished functions!!!
 X2 = sp.simplify(sol_vals[0].subs(symbolvaluedict))
 Y2 = sp.simplify(sol_vals[1].subs(symbolvaluedict))
 
