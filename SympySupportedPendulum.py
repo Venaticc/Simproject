@@ -4,24 +4,6 @@ import sympy as sp
 import matplotlib.pyplot as plt
 from sympy import Derivative
 
-t = sp.Symbol('t') # time
-
-x0 = sp.Function('x0')(t)   # theta
-x1 = x0.diff(t)             # theta prime
-x2 = x1.diff(t)             # theta bis
-
-X0 = sp.Function('X0')(t)
-X1 = sp.Function('X1')(t)   # replacement function, magic trick
-X2 = sp.Symbol('X2')
-
-y0 = sp.Function('y0')(t)   # phi
-y1 = y0.diff(t)             # phi prime
-y2 = y1.diff(t)             # phi bis
-
-Y0 = sp.Function('Y0')(t)
-Y1 = sp.Function('Y1')(t)   # also magic tricks
-Y2 = sp.Symbol('Y2')
-
 # constants
 g = sp.Symbol('g')
 m_1 = sp.Symbol('m_1')
@@ -29,43 +11,71 @@ m_2 = sp.Symbol('m_2')
 l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
 
+# assign values to constants
 symbolvaluedict = {g: 9.82, m_1: 1, m_2: 2, l_1: 1, l_2: 3}
 
-# Kinetic energy
-E_k1 = m_1 * l_1 * l_1 * x1 * x1
-E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_2 * sp.cos(y0 - x0))
+def DeriveFunctions():
+    t = sp.Symbol('t') # time
 
-# Potential energy
-E_p1 = m_1 * g * l_1 * (1-sp.cos(x0))
-E_p2 = m_2 * g * (l_1 * (1 - sp.cos(x0)) + l_2 * (1 - sp.cos(y0)))
+    x0 = sp.Function('x0')(t)   # theta
+    x1 = x0.diff(t)             # theta prime
+    x2 = x1.diff(t)             # theta bis
 
-# Langangian
-T = E_k1 + E_k2
-V = E_p1 + E_p2
-L = T - V
+    X0 = sp.Function('X0')(t)
+    X1 = sp.Function('X1')(t)   # replacement function, magic trick
+    X2 = sp.Symbol('X2')
 
-# with respect to theta
-a = (L.diff(x1).diff(t) - L.diff(x0))
-a = a.subs(x0.diff(t),X1).subs(y0.diff(t),Y1)
-a = a.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
-a = a.subs(x0,X0).subs(y0,Y0)
+    y0 = sp.Function('y0')(t)   # phi
+    y1 = y0.diff(t)             # phi prime
+    y2 = y1.diff(t)             # phi bis
 
-# with respect to phi
-b = (L.diff(y1).diff(t) - L.diff(y0))
-b = b.subs(x0.diff(t),X1).subs(y0.diff(t),Y1)
-b = b.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
-b = b.subs(x0,X0).subs(y0,Y0)
+    Y0 = sp.Function('Y0')(t)
+    Y1 = sp.Function('Y1')(t)   # also magic tricks
+    Y2 = sp.Symbol('Y2')
 
-# solve and convert to list
-eqa = sp.Eq(a,0)    # a = 0
-eqb = sp.Eq(b, 0)   # b = 0
-sol_dict = sp.solve([eqa, eqb], X2, Y2) # solve for x'' and y''
-sol_keys = list(sol_dict.keys())
-sol_vals = list(sol_dict.values())
+    # Kinetic energy
+    E_k1 = m_1 * l_1 * l_1 * x1 * x1
+    E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_2 * sp.cos(y0 - x0))
 
-# Finished functions!!!
-X2 = sp.simplify(sol_vals[0].subs(symbolvaluedict))
-Y2 = sp.simplify(sol_vals[1].subs(symbolvaluedict))
+    # Potential energy
+    E_p1 = m_1 * g * l_1 * (1-sp.cos(x0))
+    E_p2 = m_2 * g * (l_1 * (1 - sp.cos(x0)) + l_2 * (1 - sp.cos(y0)))
 
-print(X2)
-print(Y2)
+    # Langangian
+    T = E_k1 + E_k2
+    V = E_p1 + E_p2
+    L = T - V
+
+    # with respect to theta
+    a = (L.diff(x1).diff(t) - L.diff(x0))
+    a = a.subs(x0.diff(t),X1).subs(y0.diff(t),Y1)
+    a = a.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
+    a = a.subs(x0,X0).subs(y0,Y0)
+
+    # with respect to phi
+    b = (L.diff(y1).diff(t) - L.diff(y0))
+    b = b.subs(x0.diff(t),X1).subs(y0.diff(t),Y1)
+    b = b.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
+    b = b.subs(x0,X0).subs(y0,Y0)
+
+    # solve and convert to list
+    eqa = sp.Eq(a,0)    # a = 0
+    eqb = sp.Eq(b, 0)   # b = 0
+    sol_dict = sp.solve([eqa, eqb], X2, Y2) # solve for x'' and y''
+    # sol_keys = list(sol_dict.keys())      # probably not nessecary
+    sol_vals = list(sol_dict.values())
+
+    # Finished functions!!!
+    X2 = sp.simplify(sol_vals[0].subs(symbolvaluedict))
+    Y2 = sp.simplify(sol_vals[1].subs(symbolvaluedict))
+
+    return X0, Y0, X1, Y1, X2, Y2
+
+X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions()
+
+def X2func(angleX, omegaX, angleY, omegaY):
+    return X2.subs({X0: angleX, X1: omegaX, Y0: angleY, Y1: omegaY})
+
+def Y2func(angleX, omegaX, angleY, omegaY):
+    return Y2.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX})
+
