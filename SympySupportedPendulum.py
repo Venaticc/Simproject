@@ -2,7 +2,6 @@ import math as m
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
-from sympy import Derivative
 
 # constants
 g = sp.Symbol('g')
