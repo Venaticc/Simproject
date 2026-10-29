@@ -59,7 +59,7 @@ def DeriveFunctions(svd):
     y_expr = y_expr.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
     y_expr = y_expr.subs(x0,X0).subs(y0,Y0)
 
-    E_m = E_m.subs({x0:X0, x1:X1})
+    E_m = E_m.subs({x0:X0, x1:X1, y0:Y0, y1:Y1})
 
     # solve and convert to list
     eqx = sp.Eq(x_expr,0)    # x_expr = 0
@@ -90,7 +90,10 @@ def Y2func(angleX, omegaX, angleY, omegaY):
     return Y2.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf()
 
 def E_mfunc(angleX, omegaX, angleY, omegaY):
-    return E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX})
+    E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf()
+    print(E_temp)
+    return E_temp
+
 
 def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
     num_steps = int(t_end/h)
@@ -103,6 +106,9 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
     omX_array[0] = omegaX
     omY_array = np.zeros(num_steps + 1)
     omY_array[0] = omegaY
+
+    energy_array = np.zeros(num_steps + 1)
+    energy_array[0] = E_mfunc(angleX, omegaX, angleY, omegaY)
 
     for i in np.arange(num_steps):
 
@@ -125,15 +131,23 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
         omX_array[i+1] = omX
         omY_array[i+1] = omY
 
+        energy_array[i+1] = E_mfunc(angleX, omegaX, angleY, omegaY)
+
         print(anX, anY, omX, omY)
 
     t_array = np.linspace(0, t_end, num_steps + 1)
 
-    return t_array, anX_array, anY_array, omX_array, omY_array
+    return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim = RunDoublePendulum(2, 1, 0, 0, 0.01, 2)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(2, 1, 0, 0, 0.01, 2)
 
 print(anX_sim)
 plt.plot(t_array, anX_sim, 'b-', label='P1')
 plt.plot(t_array, anY_sim, 'r-', label='P2')
 plt.show()
+
+plt.plot(t_array, E_m_array, 'g-')
+plt.show()
+print(E_m_array)
+print(omX_sim)
+print(omY_sim)
