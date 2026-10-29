@@ -44,7 +44,7 @@ def DeriveFunctions(svd):
     # Langangian
     T = E_k1 + E_k2     # sum of E_k
     V = E_p1 + E_p2     # sum of E_p
-    L = T - V
+    L = T - V           # the lagrangian
     E_m = T + V         # sum of all energy
 
     # with respect to theta
@@ -59,6 +59,7 @@ def DeriveFunctions(svd):
     y_expr = y_expr.subs(X1.diff(t),X2).subs(Y1.diff(t),Y2)
     y_expr = y_expr.subs(x0,X0).subs(y0,Y0)
 
+    # replacing symbols
     E_m = E_m.subs({x0:X0, x1:X1, y0:Y0, y1:Y1})
 
     # solve and convert to list
