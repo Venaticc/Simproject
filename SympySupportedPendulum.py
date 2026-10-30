@@ -70,8 +70,8 @@ def DeriveFunctions(svd):
     sol_vals = list(sol_dict.values())
 
     # Finished functions!!!
-    X2 = sp.simplify(sol_vals[0].subs(svd))
-    Y2 = sp.simplify(sol_vals[1].subs(svd))
+    X2 = sp.simplify(sol_dict[X2].subs(svd))
+    Y2 = sp.simplify(sol_dict[Y2].subs(svd))
 
     E_m = sp.simplify(E_m.subs(svd))
 
