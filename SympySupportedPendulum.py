@@ -11,7 +11,7 @@ l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
 
 # assign values to constants
-symbolvaluedict = {g: 9.82, m_1: 1, m_2: 2, l_1: 1, l_2: 3}
+symbolvaluedict = {g: 9.82, m_1: 20, m_2: 2, l_1: 1, l_2: 3}
 
 def DeriveFunctions(svd):
     t = sp.Symbol('t') # time
@@ -69,7 +69,7 @@ def DeriveFunctions(svd):
     # sol_keys = list(sol_dict.keys())      # probably not nessecary
     sol_vals = list(sol_dict.values())
 
-    if True:
+    if False:
         print(sp.factor(sol_dict[X2]))
         print(sp.factor(sol_dict[Y2]))
         print(E_m)
@@ -77,6 +77,10 @@ def DeriveFunctions(svd):
     # Finished functions!!!
     X2 = sp.simplify(sol_dict[X2].subs(svd))
     Y2 = sp.simplify(sol_dict[Y2].subs(svd))
+
+    if False:
+        print(X2.expand())
+        print(Y2.expand())
 
     E_m = sp.simplify(E_m.subs(svd))
 
@@ -132,8 +136,8 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
         anX = anX + omX * h
         anY = anY + omY * h
 
-        anX_array[i+1] = anX % (2*m.pi)
-        anY_array[i+1] = anY % (2*m.pi)
+        anX_array[i+1] = anX #% (2*m.pi)
+        anY_array[i+1] = anY #% (2*m.pi)
         omX_array[i+1] = omX
         omY_array[i+1] = omY
 
@@ -143,7 +147,13 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 2.2)
+def Position(anX_array, anY_array, svd):
+    P1 = 1
+    pass
+
+
+
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 8)
 
 plt.plot(t_array, anX_sim, 'b-', label='P1')
 plt.plot(t_array, anY_sim, 'r-', label='P2')
