@@ -11,7 +11,7 @@ l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
 
 # assign values to constants
-symbolvaluedict = {g: 9.82, m_1: 10, m_2: 2, l_1: 1, l_2: 1}
+symbolvaluedict = {g: 9.82, m_1: 20, m_2: 2, l_1: 1, l_2: 3}
 
 t = sp.Symbol('t')
 
@@ -79,8 +79,8 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
         anX = anX + omX * h
         anY = anY + omY * h
 
-        anX_array[i+1] = anX % (2*m.pi)
-        anY_array[i+1] = anY % (2*m.pi)
+        anX_array[i+1] = anX
+        anY_array[i+1] = anY
         omX_array[i+1] = omX
         omY_array[i+1] = omY
 
@@ -90,7 +90,7 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, energy_sim = RunDoublePendulum(1, 1, 0, 0, 0.001, 3)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, energy_sim = RunDoublePendulum(1, 1, 0, 0, 0.01, 8)
 
 plt.plot(t_array, anX_sim, 'b-', label='P1')
 plt.plot(t_array, anY_sim, 'r-', label='P2')
