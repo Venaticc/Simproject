@@ -148,11 +148,16 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
 def Position(anX_array, anY_array, svd):
-    P1 = (l_1 * (1 - sp.cos(X0))).subs(svd)
-    P2 = P1 + (l_2 * (1 - sp.cos(Y0))).subs(svd)
+    P1sym = (l_1 * (1 - sp.cos(X0))).subs(svd)
+    P2sym = P1sym + (l_2 * (1 - sp.cos(Y0))).subs(svd)
 
+    P1_lambda = lambda x, y: P1sym.subs({X0: x, Y0: y})
+    P2_lambda = lambda x, y: P2sym.subs({X0: x, Y0: y})
 
+    P1_array = np.array(list(P1_lambda(anX_array, anY_array)))
+    P2_array = np.array(list(P2_lambda(anX_array, anY_array)))
 
+    return P1_array, P2_array
 
 t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 8)
 
