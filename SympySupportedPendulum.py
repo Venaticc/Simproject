@@ -169,8 +169,6 @@ plt.plot(t_array, P1, 'g-', label='P1')
 plt.plot(t_array, P2, 'y-', label='P2')
 plt.show()
 
-
-
 plt.plot(t_array, omX_sim, 'g-', label='P1')
 plt.plot(t_array, omY_sim, 'r-', label='P2')
 plt.show()
