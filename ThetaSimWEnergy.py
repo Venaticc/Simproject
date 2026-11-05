@@ -9,7 +9,6 @@ def TruePeriodTime(theta_0):
     f = ((2/m.pi)/(sp.sqrt(1 - (sp.sin(theta_0/2)*sp.sin(x))**2)))
     return sp.integrate(f, (x, 0, sp.pi/2))
 
-
 theta_0 = 0.5
 omega_0 = 0
 g_da = 9.82
@@ -72,6 +71,35 @@ def RunThetaSim(theta_0, t_end, h, omega, g_da, length):
     t_list = np.linspace(0,t_end,num_steps+1)   # time_stamps
 
     return theta_list, omega_list, t_list
+
+def RungeKutta(theta_0, t_end, h, omega, g_da, length):
+    pass
+
+def RungeKuttaSim(theta_0, t_end, h, omega, g_da, length):
+    num_steps = int(t_end/h)                    # steps
+
+    theta_list = np.zeros(num_steps+1)          # list of angles
+    theta_list[0] = theta_0                     # saves first angle
+    omega_list = np.zeros(num_steps+1)          # list of angular velocities
+    omega_list[0] = omega_0                     # saves first angular velocity
+
+    for i in np.arange(int(t_end/h)):           # recursive step siM
+
+        theta = theta_list[i]                   # gets angle
+        alpha = AlphaFunc(theta,g_da,length)    # current angular acceleration
+        omega = omega + alpha*h                 # angle velocity
+        theta = theta+omega*h                   # angle
+
+        omega_list[i+1] = omega                 # saves angular velocity
+        theta_list[i+1] = theta                 # saves angle
+
+    t_list = np.linspace(0,t_end,num_steps+1)   # time_stamps
+
+    return theta_list, omega_list, t_list
+
+
+
+
 
 # wave differance between the angle curve and energy curve
 def ThetaEnergyShiftWave(theta_obj, Energy_obj):

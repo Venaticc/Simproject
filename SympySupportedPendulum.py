@@ -13,6 +13,14 @@ l_2 = sp.Symbol('l_2')
 # assign values to constants
 symbolvaluedict = {g: 9.82, m_1: 1, m_2: 1, l_1: 1, l_2: 1}
 
+def EnergyError(energy_array, sigma_width = 5, res = 100):
+    zeroed_array = energy_array - energy_array[0]
+    mean = np.mean(zeroed_array)
+    stdev = np.std(zeroed_array,ddof=0)
+    resolution = np.linspace(mean - sigma_width * stdev, mean + sigma_width * stdev, res)
+    pdf = lambda x: m.exp(-((x-mean)**2/(2*stdev*stdev)))/(m.sqrt(2*m.pi)*stdev)
+    pdf_map = list(map(pdf,resolution))
+    return resolution, pdf_map, mean, stdev
 
 def DeriveFunctions(svd):
     t = sp.Symbol('t') # time
@@ -70,18 +78,9 @@ def DeriveFunctions(svd):
     # sol_keys = list(sol_dict.keys())      # probably not nessecary
     sol_vals = list(sol_dict.values())
 
-    if False:
-        print(sp.factor(sol_dict[X2]))
-        print(sp.factor(sol_dict[Y2]))
-        print(E_m)
-
     # Finished functions!!!
     X2 = sp.simplify(sol_dict[X2].subs(svd))
     Y2 = sp.simplify(sol_dict[Y2].subs(svd))
-
-    if False:
-        print(X2.expand())
-        print(Y2.expand())
 
     E_m = sp.simplify(E_m.subs(svd))
 
@@ -159,9 +158,14 @@ def Position(anX_array, anY_array, svd):
 
 t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 20)
 
+res, pdf_array, mean, stdev = EnergyError(E_m_array)
+print(res, pdf_array, mean, stdev)
+
+plt.plot(res, pdf_array)
+plt.show()
+
 
 P1, P2 = Position(anX_sim, anY_sim, symbolvaluedict)
-print(P1, P2)
 
 plt.plot(t_array, anX_sim, 'b-', label='P1')
 plt.plot(t_array, anY_sim, 'r-', label='P2')
