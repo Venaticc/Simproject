@@ -79,8 +79,8 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
         anX = anX + omX * h
         anY = anY + omY * h
 
-        anX_array[i+1] = anX
-        anY_array[i+1] = anY
+        anX_array[i+1] = anX % (2*m.pi)
+        anY_array[i+1] = anY % (2*m.pi)
         omX_array[i+1] = omX
         omY_array[i+1] = omY
 
@@ -90,7 +90,7 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, energy_sim = RunDoublePendulum(1, 1, 0, 0, 0.01, 8)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, energy_sim = RunDoublePendulum(1, 1, 0, 0, 0.01, 20)
 
 plt.plot(t_array, anX_sim, 'b-', label='P1')
 plt.plot(t_array, anY_sim, 'r-', label='P2')

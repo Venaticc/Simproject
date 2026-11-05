@@ -11,7 +11,8 @@ l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
 
 # assign values to constants
-symbolvaluedict = {g: 9.82, m_1: 20, m_2: 2, l_1: 1, l_2: 3}
+symbolvaluedict = {g: 9.82, m_1: 1, m_2: 1, l_1: 1, l_2: 1}
+
 
 def DeriveFunctions(svd):
     t = sp.Symbol('t') # time
@@ -156,7 +157,8 @@ def Position(anX_array, anY_array, svd):
 
     return P1_array, P2_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 8)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 20)
+
 
 P1, P2 = Position(anX_sim, anY_sim, symbolvaluedict)
 print(P1, P2)
