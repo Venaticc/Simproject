@@ -2,6 +2,9 @@ import math as m
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
+import time
+
+timestamp = time.time()
 
 # constants
 g = sp.Symbol('g')
@@ -78,21 +81,26 @@ def DeriveFunctions(svd):
 
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 
+print(time.time() - timestamp)
+timestamp = time.time()
 
 def fX(t, angleX, angleY, omegaX, omegaY):
     return omegaX
 
 
+gXlambda = sp.lambdify((X0, Y0, X1, Y1), X2)
 def gX(t, angleX, angleY, omegaX, omegaY):
-    return X2.subs({X0: angleX, X1: omegaX, Y0: angleY, Y1: omegaY}).evalf(16)
+    return gXlambda(angleX, angleY, omegaX, omegaY)
 
 
 def fY(t, angleX, angleY, omegaX, omegaY):
     return omegaY
 
 
+gYlambda = sp.lambdify((X0, Y0, X1, Y1), Y2)
 def gY(t, angleX, angleY, omegaX, omegaY):
-    return Y2.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
+    return gYlambda(angleX, angleY, omegaX, omegaY)
+
 
 
 def E_mfunc(angleX, omegaX, angleY, omegaY):
@@ -170,8 +178,9 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.01, 0, 20, 1, 1, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.000001, 0, 20, m.pi, 1, 0, 0)
 
+print(time.time() - timestamp)
 
 plt.plot(t_array, anX_sim, '-b')
 plt.plot(t_array, anY_sim, '-r')
@@ -180,4 +189,6 @@ plt.show()
 plt.plot(t_array, E_m_array, '-b')
 plt.show()
 
-
+plt.plot(t_array, abs(E_m_array - E_m_array[0]), '-r')
+print(E_m_array[0])
+plt.show()
