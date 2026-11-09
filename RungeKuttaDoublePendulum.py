@@ -78,3 +78,107 @@ def DeriveFunctions(svd):
     return E_m, X0, Y0, X1, Y1, X2, Y2
 
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
+
+
+def fX(t, angleX, angleY, omegaX, omegaY):
+    return omegaX
+
+
+def gX(t, angleX, angleY, omegaX, omegaY):
+    return X2.subs({X0: angleX, X1: omegaX, Y0: angleY, Y1: omegaY}).evalf(16)
+
+
+def fY(t, angleX, angleY, omegaX, omegaY):
+    return omegaY
+
+
+def gY(t, angleX, angleY, omegaX, omegaY):
+    return Y2.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
+
+
+def E_mfunc(angleX, omegaX, angleY, omegaY):
+    E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
+    return E_temp
+
+
+def Calculate(h, t, angleX, angleY, omegaX, omegaY):
+    k_1X = h*fX(t, angleX, angleY, omegaX, omegaY) # OMEGA X
+    k_1Y = h*fY(t, angleX, angleY, omegaX, omegaY) # OMEGA Y
+
+    r_1X = h*gX(t, angleX, angleY, omegaX, omegaY) # ALPHA X
+    r_1Y = h*gY(t, angleX, angleY, omegaX, omegaY) # ALPHA Y
+
+    k_2X = h*fX(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
+    k_2Y = h*fY(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
+
+    r_2X = h*gX(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
+    r_2Y = h*gY(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
+
+    k_3X = h*fX(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
+    k_3Y = h*fY(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
+
+    r_3X = h*gX(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
+    r_3Y = h*gY(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
+
+    k_4X = h*fX(t+h, angleX + k_3X, angleY + k_3Y, omegaX + r_3X, omegaY + r_3Y)
+    k_4Y = h*fY(t+h, angleX + k_3X, angleY + k_3Y, omegaX + r_3X, omegaY + r_3Y)
+
+    r_4X = h*gX(t+h, angleX + k_3X, angleY + k_3Y, omegaX + r_3X, omegaY + r_3Y)
+    r_4Y = h*gY(t+h, angleX + k_3X, angleY + k_3Y, omegaX + r_3X, omegaY + r_3Y)
+
+    angleX = angleX + k_1X / 6 + k_2X / 3 + k_3X / 3 + k_4X / 6
+    angleY = angleY + k_1Y / 6 + k_2Y / 3 + k_3Y / 3 + k_4Y / 6
+    omegaX = omegaX + r_1X / 6 + k_3X / 3 + k_4X / 3 + r_4X / 6
+    omegaY = omegaY + r_1Y / 6 + k_3Y / 3 + k_4Y / 3 + r_4Y / 6
+
+    return angleX, angleY, omegaX, omegaY
+
+def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
+    num_steps = int((t_end - t_start)/h)
+
+    t = t_start
+
+    anX_array = np.zeros(num_steps + 1)
+    anX_array[0] = angleX % (2*m.pi)
+    anY_array = np.zeros(num_steps + 1)
+    anY_array[0] = angleY % (2*m.pi)
+    omX_array = np.zeros(num_steps + 1)
+    omX_array[0] = omegaX
+    omY_array = np.zeros(num_steps + 1)
+    omY_array[0] = omegaY
+
+    energy_array = np.zeros(num_steps + 1)
+    energy_array[0] = E_mfunc(angleX, omegaX, angleY, omegaY)
+
+    for i in np.arange(num_steps):
+        anX = anX_array[i]
+        anY = anY_array[i]
+        omX = omX_array[i]
+        omY = omY_array[i]
+
+        anX, anY, omX, omY = Calculate(h, t, anX, anY, omX, omY)
+
+        t = t + h
+
+        anX_array[i + 1] = anX
+        anY_array[i + 1] = anY
+        omX_array[i + 1] = omX
+        omY_array[i + 1] = omY
+
+        energy_array[i + 1] = E_mfunc(anX, omX, anY, omY)
+
+    t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
+
+    return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
+
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.01, 0, 10.45, 1, 1, 0, 0)
+
+
+plt.plot(t_array, anX_sim, '-b')
+plt.plot(t_array, anY_sim, '-r')
+plt.show()
+
+plt.plot(t_array, E_m_array, '-b')
+plt.show()
+
+
