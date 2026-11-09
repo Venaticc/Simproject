@@ -13,14 +13,20 @@ l_2 = sp.Symbol('l_2')
 # assign values to constants
 symbolvaluedict = {g: 9.82, m_1: 1, m_2: 1, l_1: 1, l_2: 1}
 
-def EnergyError(energy_array, sigma_width = 5, res = 100):
-    zeroed_array = energy_array - energy_array[0]
-    mean = np.mean(zeroed_array)
-    stdev = np.std(zeroed_array,ddof=0)
+def EnergyErrorSTD(energy_array, sigma_width = 5, res = 100):
+    mean = np.mean(energy_array)
+    stdev = np.std(energy_array,ddof=0)
+    if sigma_width == 0:
+        return mean, stdev
     resolution = np.linspace(mean - sigma_width * stdev, mean + sigma_width * stdev, res)
     pdf = lambda x: m.exp(-((x-mean)**2/(2*stdev*stdev)))/(m.sqrt(2*m.pi)*stdev)
     pdf_map = list(map(pdf,resolution))
     return resolution, pdf_map, mean, stdev
+
+def EnergyDeviation(energy_array):
+    zeroed_array = energy_array - energy_array[0]
+    zeroed_array *= zeroed_array
+    return zeroed_array, np.sum(zeroed_array)
 
 def DeriveFunctions(svd):
     t = sp.Symbol('t') # time
@@ -90,17 +96,17 @@ E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 
 
 def X2func(angleX, omegaX, angleY, omegaY):
-    return X2.subs({X0: angleX, X1: omegaX, Y0: angleY, Y1: omegaY}).evalf()
+    return X2.subs({X0: angleX, X1: omegaX, Y0: angleY, Y1: omegaY}).evalf(16)
 
 X2lambda = sp.lambdify((X0, X1, Y0, Y1), X2, 'numpy')
 
 def Y2func(angleX, omegaX, angleY, omegaY):
-    return Y2.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf()
+    return Y2.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
 
 Y2lambda = sp.lambdify((X0, X1, Y0, Y1), Y2, 'numpy')
 
 def E_mfunc(angleX, omegaX, angleY, omegaY):
-    E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf()
+    E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
     return E_temp
 
 E_mlambda = sp.lambdify((X0, X1, Y0, Y1), E_m, 'numpy')
@@ -148,8 +154,8 @@ def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
 def Position(anX_array, anY_array, svd):
-    P1_lambda = lambda x: ((l_1*sp.cos(x)).subs(svd)).evalf()
-    P2_lambda = lambda y: ((l_2*sp.cos(y)).subs(svd)).evalf()
+    P1_lambda = lambda x: ((l_1*sp.cos(x)).subs(svd)).evalf(4)
+    P2_lambda = lambda y: ((l_2*sp.cos(y)).subs(svd)).evalf(4)
 
     P1_array = np.array(list(map(P1_lambda, anX_array)))
     P2_array = np.array(list(map(P2_lambda, anY_array))) + P1_array
@@ -158,25 +164,15 @@ def Position(anX_array, anY_array, svd):
 
 t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 20)
 
-res, pdf_array, mean, stdev = EnergyError(E_m_array)
-print(res, pdf_array, mean, stdev)
+res, pdf_array, mean, stdev = EnergyErrorSTD(E_m_array)
+print(mean, stdev)
 
 plt.plot(res, pdf_array)
 plt.show()
 
+Edsq_array, E_dev = EnergyDeviation(E_m_array)
 
-P1, P2 = Position(anX_sim, anY_sim, symbolvaluedict)
-
-plt.plot(t_array, anX_sim, 'b-', label='P1')
-plt.plot(t_array, anY_sim, 'r-', label='P2')
-plt.show()
-
-plt.plot(t_array, P1, 'g-', label='P1')
-plt.plot(t_array, P2, 'y-', label='P2')
-plt.show()
-
-plt.plot(t_array, omX_sim, 'g-', label='P1')
-plt.plot(t_array, omY_sim, 'r-', label='P2')
+plt.plot(t_array, E_dev)
 plt.show()
 
 plt.plot(t_array, E_m_array, 'g-')
