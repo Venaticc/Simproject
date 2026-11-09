@@ -102,10 +102,7 @@ def gY(t, angleX, angleY, omegaX, omegaY):
     return gYlambda(angleX, angleY, omegaX, omegaY)
 
 
-
-def E_mfunc(angleX, omegaX, angleY, omegaY):
-    E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
-    return E_temp
+E_mlambda = sp.lambdify((X0, Y0, X1, Y1), E_m)
 
 
 def Calculate(h, t, angleX, angleY, omegaX, omegaY):
@@ -135,6 +132,7 @@ def Calculate(h, t, angleX, angleY, omegaX, omegaY):
 
     angleX = angleX + k_1X / 6 + k_2X / 3 + k_3X / 3 + k_4X / 6
     angleY = angleY + k_1Y / 6 + k_2Y / 3 + k_3Y / 3 + k_4Y / 6
+
     omegaX = omegaX + r_1X / 6 + r_2X / 3 + r_3X / 3 + r_4X / 6
     omegaY = omegaY + r_1Y / 6 + r_2Y / 3 + r_3Y / 3 + r_4Y / 6
 
@@ -155,7 +153,7 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
     omY_array[0] = omegaY
 
     energy_array = np.zeros(num_steps + 1)
-    energy_array[0] = E_mfunc(angleX, omegaX, angleY, omegaY)
+    energy_array[0] = E_mlambda(angleX, angleY, omegaX, omegaY)
 
     for i in np.arange(num_steps):
         anX = anX_array[i]
@@ -172,13 +170,13 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
         omX_array[i + 1] = omX
         omY_array[i + 1] = omY
 
-        energy_array[i + 1] = E_mfunc(anX, omX, anY, omY)
+        energy_array[i + 1] = E_mlambda(angleX, angleY, omegaX, omegaY)
 
     t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.000001, 0, 20, m.pi, 1, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.01, 0, 20, m.pi, 1, 0, 0)
 
 print(time.time() - timestamp)
 
@@ -189,6 +187,14 @@ plt.show()
 plt.plot(t_array, E_m_array, '-b')
 plt.show()
 
-plt.plot(t_array, abs(E_m_array - E_m_array[0]), '-r')
-print(E_m_array[0])
+
+print("Starting E_m:", E_m_array[0])
+print("E max - min:", max(E_m_array) - min(E_m_array))
+
+plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
+plt.axis("tight")
 plt.show()
+
+print(np.std(E_m_array, ddof=0))
+print(np.std(np.zeros((201,)), ddof=0))
+print((E_m_array - E_m_array[0])*10**13)
