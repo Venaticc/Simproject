@@ -98,6 +98,7 @@ E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 def X2func(angleX, omegaX, angleY, omegaY):
     return X2.subs({X0: angleX, X1: omegaX, Y0: angleY, Y1: omegaY}).evalf(16)
 
+
 X2lambda = sp.lambdify((X0, X1, Y0, Y1), X2)
 
 def Y2func(angleX, omegaX, angleY, omegaY):
