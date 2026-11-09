@@ -39,7 +39,6 @@ def DeriveFunctions(svd):
     # Potential energy E_p = mgh
     E_p1 = m_1 * g * l_1 * (1-sp.cos(x0))
     E_p2 = m_2 * g * (l_1 * (1 - sp.cos(x0)) + l_2 * (1 - sp.cos(y0)))
-    # E_p3 = m_3 * g * (l_1 * (1 - sp.cos(x0)) + l_2 * (1 - sp.cos(y0)) + l_3 * (1 - sp.cos(z0)))
 
     # Langangian
     T = E_k1 + E_k2     # sum of E_k
@@ -171,7 +170,7 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.01, 0, 10.45, 1, 1, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.01, 0, 10, 0.5, 0.5, 0, 0)
 
 
 plt.plot(t_array, anX_sim, '-b')
