@@ -98,18 +98,18 @@ E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 def X2func(angleX, omegaX, angleY, omegaY):
     return X2.subs({X0: angleX, X1: omegaX, Y0: angleY, Y1: omegaY}).evalf(16)
 
-X2lambda = sp.lambdify((X0, X1, Y0, Y1), X2, 'numpy')
+X2lambda = sp.lambdify((X0, X1, Y0, Y1), X2, )
 
 def Y2func(angleX, omegaX, angleY, omegaY):
     return Y2.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
 
-Y2lambda = sp.lambdify((X0, X1, Y0, Y1), Y2, 'numpy')
+Y2lambda = sp.lambdify((X0, X1, Y0, Y1), Y2, )
 
 def E_mfunc(angleX, omegaX, angleY, omegaY):
     E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
     return E_temp
 
-E_mlambda = sp.lambdify((X0, X1, Y0, Y1), E_m, 'numpy')
+E_mlambda = sp.lambdify((X0, X1, Y0, Y1), E_m, )
 
 def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
     num_steps = int(t_end/h)
@@ -162,7 +162,7 @@ def Position(anX_array, anY_array, svd):
 
     return P1_array, P2_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 3)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 20)
 
 plt.plot(t_array, anX_sim, '-b')
 plt.plot(t_array, anY_sim, '-r')

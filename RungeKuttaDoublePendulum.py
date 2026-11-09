@@ -127,8 +127,8 @@ def Calculate(h, t, angleX, angleY, omegaX, omegaY):
 
     angleX = angleX + k_1X / 6 + k_2X / 3 + k_3X / 3 + k_4X / 6
     angleY = angleY + k_1Y / 6 + k_2Y / 3 + k_3Y / 3 + k_4Y / 6
-    omegaX = omegaX + r_1X / 6 + k_3X / 3 + k_4X / 3 + r_4X / 6
-    omegaY = omegaY + r_1Y / 6 + k_3Y / 3 + k_4Y / 3 + r_4Y / 6
+    omegaX = omegaX + r_1X / 6 + r_2X / 3 + r_3X / 3 + r_4X / 6
+    omegaY = omegaY + r_1Y / 6 + r_2Y / 3 + r_3Y / 3 + r_4Y / 6
 
     return angleX, angleY, omegaX, omegaY
 
@@ -170,7 +170,7 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.01, 0, 10, 0.5, 0.5, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.01, 0, 20, 1, 1, 0, 0)
 
 
 plt.plot(t_array, anX_sim, '-b')
