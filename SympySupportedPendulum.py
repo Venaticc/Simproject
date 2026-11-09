@@ -11,7 +11,7 @@ l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
 
 # assign values to constants
-symbolvaluedict = {g: 9.82, m_1: 1, m_2: 1, l_1: 1, l_2: 1}
+symbolvaluedict = {g: 9.82, m_1: 10, m_2: 1, l_1: 3, l_2: 1}
 
 def EnergyErrorSTD(energy_array, sigma_width = 5, res = 100):
     mean = np.mean(energy_array)
@@ -164,6 +164,11 @@ def Position(anX_array, anY_array, svd):
 
 t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(1, 1, 0, 0, 0.01, 20)
 
+plt.plot(t_array, anX_sim, '-b')
+plt.plot(t_array, anY_sim, '-r')
+plt.show()
+
+
 res, pdf_array, mean, stdev = EnergyErrorSTD(E_m_array)
 print(mean, stdev)
 
@@ -171,8 +176,9 @@ plt.plot(res, pdf_array)
 plt.show()
 
 Edsq_array, E_dev = EnergyDeviation(E_m_array)
+print(E_dev)
 
-plt.plot(t_array, E_dev)
+plt.plot(t_array, Edsq_array)
 plt.show()
 
 plt.plot(t_array, E_m_array, 'g-')
