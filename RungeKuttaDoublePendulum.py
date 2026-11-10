@@ -16,6 +16,7 @@ l_2 = sp.Symbol('l_2')
 # assign values to constants
 symbolvaluedict = {g: 9.82, m_1: 10, m_2: 1, l_1: 3, l_2: 1}
 
+# finds the functions for the angular acceleration of both angles and the total mechanical energy
 def DeriveFunctions(svd):
     t = sp.Symbol('t') # time
 
@@ -79,38 +80,44 @@ def DeriveFunctions(svd):
 
     return E_m, X0, Y0, X1, Y1, X2, Y2
 
+
+# creates the functions
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 
-print(time.time() - timestamp)
-timestamp = time.time()
 
+# X_n+1 = X_n + h*fX
 def fX(t, angleX, angleY, omegaX, omegaY):
     return omegaX
 
 
+# omegaX_n+1 = omegaX_n + h*gX
 gXlambda = sp.lambdify((X0, Y0, X1, Y1), X2)
 def gX(t, angleX, angleY, omegaX, omegaY):
     return gXlambda(angleX, angleY, omegaX, omegaY)
 
 
+# Y_n+1 = Y_n + h*fY
 def fY(t, angleX, angleY, omegaX, omegaY):
     return omegaY
 
 
+# omegaY_n+1 = omegaY_n + h*gY
 gYlambda = sp.lambdify((X0, Y0, X1, Y1), Y2)
 def gY(t, angleX, angleY, omegaX, omegaY):
     return gYlambda(angleX, angleY, omegaX, omegaY)
 
 
+# total mechanical energy
 E_mlambda = sp.lambdify((X0, Y0, X1, Y1), E_m)
 
 
-def Calculate(h, t, angleX, angleY, omegaX, omegaY):
-    k_1X = h*fX(t, angleX, angleY, omegaX, omegaY) # OMEGA X
-    k_1Y = h*fY(t, angleX, angleY, omegaX, omegaY) # OMEGA Y
+# Find RK4 for a double pendulum
+def CalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
+    k_1X = h*fX(t, angleX, angleY, omegaX, omegaY) # X
+    k_1Y = h*fY(t, angleX, angleY, omegaX, omegaY) # Y
 
-    r_1X = h*gX(t, angleX, angleY, omegaX, omegaY) # ALPHA X
-    r_1Y = h*gY(t, angleX, angleY, omegaX, omegaY) # ALPHA Y
+    r_1X = h*gX(t, angleX, angleY, omegaX, omegaY) # OMEGA X = h * ALPHA X
+    r_1Y = h*gY(t, angleX, angleY, omegaX, omegaY) # OMEGA Y = h * ALPHA Y
 
     k_2X = h*fX(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
     k_2Y = h*fY(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
@@ -138,6 +145,8 @@ def Calculate(h, t, angleX, angleY, omegaX, omegaY):
 
     return angleX, angleY, omegaX, omegaY
 
+
+# Run RK4 step simulation for a double pendulum
 def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
     num_steps = int((t_end - t_start)/h)
 
@@ -161,7 +170,7 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
         omX = omX_array[i]
         omY = omY_array[i]
 
-        anX, anY, omX, omY = Calculate(h, t, anX, anY, omX, omY)
+        anX, anY, omX, omY = CalculateRK4(h, t, anX, anY, omX, omY)
 
         t = t + h
 
@@ -176,14 +185,22 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
+
+# time to define all functions and expressions
+print(time.time() - timestamp)
+timestamp = time.time()
+
+
 t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.0001, 0, 20, 1, 1, 0, 0)
 
 
 print(time.time() - timestamp)
 
+
 plt.plot(t_array, anX_sim, '-b')
 plt.plot(t_array, anY_sim, '-r')
 plt.show()
+
 
 plt.plot(t_array, E_m_array, '-b')
 plt.axis("tight")
@@ -193,8 +210,10 @@ plt.show()
 print("Starting E_m:", E_m_array[0])
 print("E max - min:", max(E_m_array) - min(E_m_array))
 
+
 plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
 plt.axis("tight")
 plt.show()
+
 
 print(np.std(E_m_array, ddof=0))
