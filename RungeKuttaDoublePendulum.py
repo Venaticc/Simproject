@@ -170,13 +170,14 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
         omX_array[i + 1] = omX
         omY_array[i + 1] = omY
 
-        energy_array[i + 1] = E_mlambda(angleX, angleY, omegaX, omegaY)
+        energy_array[i + 1] = E_mlambda(anX, anY, omX, omY)
 
     t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.01, 0, 20, m.pi, 1, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.0001, 0, 200, 1, 1, 0, 0)
+
 
 print(time.time() - timestamp)
 
@@ -185,6 +186,7 @@ plt.plot(t_array, anY_sim, '-r')
 plt.show()
 
 plt.plot(t_array, E_m_array, '-b')
+plt.axis("tight")
 plt.show()
 
 
@@ -196,5 +198,3 @@ plt.axis("tight")
 plt.show()
 
 print(np.std(E_m_array, ddof=0))
-print(np.std(np.zeros((201,)), ddof=0))
-print((E_m_array - E_m_array[0])*10**13)
