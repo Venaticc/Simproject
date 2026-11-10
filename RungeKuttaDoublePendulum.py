@@ -176,7 +176,7 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.0001, 0, 200, 1, 1, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.0001, 0, 20, 1, 1, 0, 0)
 
 
 print(time.time() - timestamp)
