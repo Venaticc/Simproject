@@ -2,6 +2,9 @@ import math as m
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
+import time
+
+timestamp = time.time()
 
 # constants
 g = sp.Symbol('g')
@@ -166,7 +169,16 @@ def Position(anX_array, anY_array, svd):
 
     return P1_array, P2_array
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(m.pi, 1, 0, 0, 0.01, 20)
+
+print(time.time() - timestamp)
+timestamp = time.time()
+
+
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(m.pi, 1, 0, 0, 0.001, 20)
+
+
+print(time.time() - timestamp)
+
 
 plt.plot(t_array, anX_sim, '-b')
 plt.plot(t_array, anY_sim, '-r')

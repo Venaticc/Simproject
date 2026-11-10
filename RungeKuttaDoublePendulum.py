@@ -191,29 +191,35 @@ print(time.time() - timestamp)
 timestamp = time.time()
 
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.0001, 0, 20, 1, 1, 0, 0)
+# Run the simulation
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.001, 0, 20, m.pi, 1, 0, 0)
 
 
+# Time to run sim
 print(time.time() - timestamp)
 
 
+# graph of angles over time
 plt.plot(t_array, anX_sim, '-b')
 plt.plot(t_array, anY_sim, '-r')
 plt.show()
 
 
+# evergy over time, tight
 plt.plot(t_array, E_m_array, '-b')
 plt.axis("tight")
 plt.show()
 
 
+# an assortment of data
 print("Starting E_m:", E_m_array[0])
 print("E max - min:", max(E_m_array) - min(E_m_array))
+print(np.std(E_m_array, ddof=0))
 
 
+# scaled and absoluted energy to visualize deviation from start
 plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
 plt.axis("tight")
 plt.show()
 
 
-print(np.std(E_m_array, ddof=0))
