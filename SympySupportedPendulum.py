@@ -109,9 +109,6 @@ def Y2func(angleX, omegaX, angleY, omegaY):
 
 Y2lambda = sp.lambdify((X0, X1, Y0, Y1), Y2)
 
-print(Y2lambda(1, 0, 1, 0))
-print(Y2func(1, 0, 1, 0))
-
 def E_mfunc(angleX, omegaX, angleY, omegaY):
     E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
     return E_temp
@@ -182,6 +179,11 @@ print(time.time() - timestamp)
 
 plt.plot(t_array, anX_sim, '-b')
 plt.plot(t_array, anY_sim, '-r')
+plt.show()
+
+
+plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
+plt.axis("tight")
 plt.show()
 
 
