@@ -2,9 +2,6 @@ import math as m
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
-import time
-
-timestamp = time.time()
 
 # constants
 g = sp.Symbol('g')
@@ -109,6 +106,9 @@ def Y2func(angleX, omegaX, angleY, omegaY):
 
 Y2lambda = sp.lambdify((X0, X1, Y0, Y1), Y2)
 
+print(Y2lambda(1, 0, 1, 0))
+print(Y2func(1, 0, 1, 0))
+
 def E_mfunc(angleX, omegaX, angleY, omegaY):
     E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
     return E_temp
@@ -166,24 +166,10 @@ def Position(anX_array, anY_array, svd):
 
     return P1_array, P2_array
 
-
-print(time.time() - timestamp)
-timestamp = time.time()
-
-
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(m.pi, 1, 0, 0, 0.001, 20)
-
-
-print(time.time() - timestamp)
-
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(m.pi, 1, 0, 0, 0.01, 20)
 
 plt.plot(t_array, anX_sim, '-b')
 plt.plot(t_array, anY_sim, '-r')
-plt.show()
-
-
-plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
-plt.axis("tight")
 plt.show()
 
 
