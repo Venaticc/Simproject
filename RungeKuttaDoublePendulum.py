@@ -46,7 +46,9 @@ def DeriveFunctions(svd):
 
     # Langangian
     T = E_k1 + E_k2     # sum of E_k
+    print(T)
     V = E_p1 + E_p2     # sum of E_p
+    print(V)
     L = T - V           # the lagrangian
     E_m = T + V         # sum of all energy
 
@@ -196,18 +198,19 @@ t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumR
 # Time to run sim
 print(time.time() - timestamp)
 
-for delta in np.linspace(0, 1, 10):
-    timestamp = time.time()
-    t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.001, 0, 20, m.pi, 1, 0, 0)
-    print(E_m_array[0])
-    plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
-    plt.axis("tight")
-    plt.show()
-    print(E_m_array)
-    print(time.time() - timestamp)
-
-
 if False:
+    for delta in np.linspace(0, 1, 10):
+        timestamp = time.time()
+        t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.001, 0, 20, m.pi, 1, 0, 0)
+        print(E_m_array[0])
+        plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
+        plt.axis("tight")
+        plt.show()
+        print(E_m_array)
+        print(time.time() - timestamp)
+
+
+if True:
     # graph of angles over time
     plt.plot(t_array, anX_sim, '-b')
     plt.plot(t_array, anY_sim, '-r')
