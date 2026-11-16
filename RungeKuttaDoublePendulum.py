@@ -16,6 +16,12 @@ l_2 = sp.Symbol('l_2')
 # assign values to constants
 symbolvaluedict = {g: 9.82, m_1: 10, m_2: 1, l_1: 3, l_2: 1}
 
+
+# the Lyapunov-exponent
+def LyapunovExponent(omega_array):
+    return np.mean(np.log(abs(omega_array)))
+
+
 # finds the functions for the angular acceleration of both angles and the total mechanical energy
 def DeriveFunctions(svd):
     t = sp.Symbol('t') # time
@@ -185,7 +191,6 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
 
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
-
 # time to define all functions and expressions
 print(time.time() - timestamp)
 timestamp = time.time()
@@ -193,21 +198,27 @@ timestamp = time.time()
 # Run the simulation
 t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.001, 0, 20, m.pi, 1, 0, 0)
 
+LeX = LyapunovExponent(omX_sim)
+LeY = LyapunovExponent(omY_sim)
+
 # Time to run sim
 print(time.time() - timestamp)
 
-for delta in np.linspace(0, 1, 10):
-    timestamp = time.time()
-    t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.001, 0, 20, m.pi, 1, 0, 0)
-    print(E_m_array[0])
-    plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
-    plt.axis("tight")
-    plt.show()
-    print(E_m_array)
-    print(time.time() - timestamp)
-
+print(LeX, LeY)
 
 if False:
+    for delta in np.linspace(0, 1, 10):
+        timestamp = time.time()
+        t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.001, 0, 20, m.pi, 1, 0, 0)
+        print(E_m_array[0])
+        plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
+        plt.axis("tight")
+        plt.show()
+        print(E_m_array)
+        print(time.time() - timestamp)
+
+
+if True:
     # graph of angles over time
     plt.plot(t_array, anX_sim, '-b')
     plt.plot(t_array, anY_sim, '-r')
