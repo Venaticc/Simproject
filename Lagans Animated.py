@@ -207,9 +207,9 @@ print(time.time() - timestamp)
 print("Starting E_m:", E_m_array[0])
 print("E max - min:", max(E_m_array) - min(E_m_array))
 
-# plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
-# plt.axis("tight")
-# plt.show()
+ plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
+ plt.axis("tight")
+ plt.show()
 
 print(np.std(E_m_array, ddof=0))
 print(np.std(np.zeros((201,)), ddof=0))
