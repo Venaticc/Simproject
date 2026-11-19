@@ -15,10 +15,11 @@ l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
 
 # assign values to constants
-symbolvaluedict = {g: 9.82, m_1: 10, m_2: 1, l_1: 3, l_2: 1}
+symbolvaluedict = {g: 9.82, m_1: 10, m_2: 2, l_1: 3, l_2: 1}
 
 l_sum = symbolvaluedict[l_1] + symbolvaluedict[l_2]
-h = 0.01
+
+h = 0.001
 
 
 def DeriveFunctions(svd):
@@ -192,7 +193,7 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(h, 0, 20, m.pi, 1, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(h, 0, 50, m.pi, m.pi, m.pi, m.pi)
 
 print(time.time() - timestamp)
 
@@ -207,9 +208,9 @@ print(time.time() - timestamp)
 print("Starting E_m:", E_m_array[0])
 print("E max - min:", max(E_m_array) - min(E_m_array))
 
- plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
- plt.axis("tight")
- plt.show()
+plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
+plt.axis("tight")
+plt.show()
 
 print(np.std(E_m_array, ddof=0))
 print(np.std(np.zeros((201,)), ddof=0))
@@ -217,7 +218,7 @@ print((E_m_array - E_m_array[0]) * 10 ** 13)
 
 E_d = (np.mean(abs(E_m_array - E_m_array[0])) / E_m_array[0])
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(6, 5))
 ax = fig.add_subplot(autoscale_on=False, xlim=(-l_sum, l_sum), ylim=(-l_sum, l_sum))
 ax.set_aspect('equal')
 ax.grid()
@@ -227,7 +228,11 @@ trace, = ax.plot([], [], '.-', lw=1, ms=2)
 time_template = 'time = %.1fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
-F1 = list(anX_sim)
+
+skip_size = 25
+anim_h = h*skip_size
+
+F1 = list(anX_sim)[::skip_size]
 
 F2 = ([], [])
 l_1 = symbolvaluedict[l_1]
@@ -238,25 +243,27 @@ x1_data = l_1 * np.sin(F1)
 
 y1_data = -l_1 * np.cos(F1)
 
-f3 = list(anY_sim)
+f3 = list(anY_sim)[::skip_size]
 f4 = ([], [])
 x2_data = l_2 * np.sin(f3) + x1_data
 y2_data = -l_2 * np.cos(f3) + y1_data
 
+t_anim = t_array[::skip_size]
+print(len(t_array))
+print(len(t_anim))
 
 def animate(i):
     thisx = [0, x1_data[i], x2_data[i]]
     thisy = [0, y1_data[i], y2_data[i]]
 
-    history_x = x2_data[:i]
-    history_y = y2_data[:i]
-    h = 0.01
+    history_x = x2_data[:i+1]
+    history_y = y2_data[:i+1]
     line.set_data(thisx, thisy)
     trace.set_data(history_x, history_y)
-    time_text.set_text(time_template % (i * h))
+    time_text.set_text(time_template % (t_anim[i]))
     return line, trace, time_text
 
 
 ani = animation.FuncAnimation(
-    fig, animate, len(anX_sim), interval=h * 1000, blit=True)
+    fig, animate, len(t_anim), interval=anim_h * len(t_anim), blit=True)
 plt.show()
