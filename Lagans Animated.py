@@ -17,9 +17,12 @@ l_2 = sp.Symbol('l_2')
 # assign values to constants
 symbolvaluedict = {g: 9.82, m_1: 10, m_2: 2, l_1: 3, l_2: 4}
 
+
 l_sum = symbolvaluedict[l_1] + symbolvaluedict[l_2]
 
+
 h = 0.001
+skip_size = 50
 
 
 def DeriveFunctions(svd):
@@ -221,10 +224,6 @@ E_d = (np.mean(abs(E_m_array - E_m_array[0])) / E_m_array[0])
 
 
 
-
-
-
-skip_size = 50
 anim_h = h*skip_size
 
 fig = plt.figure(figsize=(6, 5))
