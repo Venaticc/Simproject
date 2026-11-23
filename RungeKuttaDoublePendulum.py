@@ -14,7 +14,7 @@ l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
 
 # assign values to constants
-symbolvaluedict = {g: 9.82, m_1: 10, m_2: 1, l_1: 3, l_2: 1}
+symbolvaluedict = {g: 9.82, m_1: 10, m_2: 2, l_1: 3, l_2: 4}
 
 
 # the Lyapunov-exponent

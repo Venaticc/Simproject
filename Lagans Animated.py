@@ -15,7 +15,7 @@ l_1 = sp.Symbol('l_1')
 l_2 = sp.Symbol('l_2')
 
 # assign values to constants
-symbolvaluedict = {g: 9.82, m_1: 10, m_2: 2, l_1: 3, l_2: 1}
+symbolvaluedict = {g: 9.82, m_1: 10, m_2: 2, l_1: 3, l_2: 4}
 
 l_sum = symbolvaluedict[l_1] + symbolvaluedict[l_2]
 
@@ -87,6 +87,7 @@ def DeriveFunctions(svd):
 
 
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
+
 
 print(time.time() - timestamp)
 timestamp = time.time()
@@ -193,7 +194,7 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
     return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
 
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(h, 0, 50, m.pi, m.pi, m.pi, m.pi)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(h, 0, 50, m.pi/2, m.pi, 0, 0)
 
 print(time.time() - timestamp)
 
@@ -218,6 +219,14 @@ print((E_m_array - E_m_array[0]) * 10 ** 13)
 
 E_d = (np.mean(abs(E_m_array - E_m_array[0])) / E_m_array[0])
 
+
+
+
+
+
+skip_size = 50
+anim_h = h*skip_size
+
 fig = plt.figure(figsize=(6, 5))
 ax = fig.add_subplot(autoscale_on=False, xlim=(-l_sum, l_sum), ylim=(-l_sum, l_sum))
 ax.set_aspect('equal')
@@ -228,9 +237,6 @@ trace, = ax.plot([], [], '.-', lw=1, ms=2)
 time_template = 'time = %.1fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
-
-skip_size = 25
-anim_h = h*skip_size
 
 F1 = list(anX_sim)[::skip_size]
 
