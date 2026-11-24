@@ -201,6 +201,9 @@ t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumR
 LeX = LyapunovExponent(omX_sim)
 LeY = LyapunovExponent(omY_sim)
 
+E_d = (np.mean(abs(E_m_array - E_m_array[0])) / E_m_array[0])
+
+
 # Time to run sim
 print(time.time() - timestamp)
 

@@ -201,27 +201,6 @@ t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumR
 
 print(time.time() - timestamp)
 
-# plt.plot(t_array, anX_sim, '-b')
-# plt.plot(t_array, anY_sim, '-r')
-# plt.show()
-
-# plt.plot(t_array, E_m_array, '-b')
-# plt.show()
-
-
-print("Starting E_m:", E_m_array[0])
-print("E max - min:", max(E_m_array) - min(E_m_array))
-
-plt.plot(t_array, np.abs(E_m_array - E_m_array[0]), '-r')
-plt.axis("tight")
-plt.show()
-
-print(np.std(E_m_array, ddof=0))
-print(np.std(np.zeros((201,)), ddof=0))
-print((E_m_array - E_m_array[0]) * 10 ** 13)
-
-E_d = (np.mean(abs(E_m_array - E_m_array[0])) / E_m_array[0])
-
 
 
 anim_h = h*skip_size
@@ -271,5 +250,5 @@ def animate(i):
 
 ani = animation.FuncAnimation(
     fig, animate, len(t_anim), interval=anim_h * len(t_anim), blit=True)
-ani.save("animation.gif", writer="imagemagick")
+ani.save("animation.gif", writer='pillow', fps=round(1/(anim_h)), dpi=50)
 plt.show()
