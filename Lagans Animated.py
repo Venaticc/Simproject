@@ -22,7 +22,7 @@ l_sum = symbolvaluedict[l_1] + symbolvaluedict[l_2]
 
 
 h = 0.001
-skip_size = 50
+skip_size = 100
 
 
 def DeriveFunctions(svd):
@@ -92,10 +92,6 @@ def DeriveFunctions(svd):
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 
 
-print(time.time() - timestamp)
-timestamp = time.time()
-
-
 def fX(t, angleX, angleY, omegaX, omegaY):
     return omegaX
 
@@ -121,7 +117,7 @@ def gY(t, angleX, angleY, omegaX, omegaY):
 E_mlambda = sp.lambdify((X0, Y0, X1, Y1), E_m)
 
 
-def Calculate(h, t, angleX, angleY, omegaX, omegaY):
+def QuickCalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     k_1X = h * fX(t, angleX, angleY, omegaX, omegaY)  # OMEGA X
     k_1Y = h * fY(t, angleX, angleY, omegaX, omegaY)  # OMEGA Y
 
@@ -155,52 +151,25 @@ def Calculate(h, t, angleX, angleY, omegaX, omegaY):
     return angleX, angleY, omegaX, omegaY
 
 
-def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
-    num_steps = int((t_end - t_start) / h)
+def QuickDPRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
+    # Skips saving angular velocities
 
+    num_steps = int((t_end - t_start) / h)
     t = t_start
 
     anX_array = np.zeros(num_steps + 1)
-    anX_array[0] = angleX % (2 * m.pi)
+    anX_array[0] = angleX
     anY_array = np.zeros(num_steps + 1)
-    anY_array[0] = angleY % (2 * m.pi)
-    omX_array = np.zeros(num_steps + 1)
-    omX_array[0] = omegaX
-    omY_array = np.zeros(num_steps + 1)
-    omY_array[0] = omegaY
-
-    energy_array = np.zeros(num_steps + 1)
-    energy_array[0] = E_mlambda(angleX, angleY, omegaX, omegaY)
+    anY_array[0] = angleY
 
     for i in np.arange(num_steps):
-        anX = anX_array[i]
-        anY = anY_array[i]
-        omX = omX_array[i]
-        omY = omY_array[i]
+        anX_array[i + 1], anY_array[i + 1], omegaX, omegaY = QuickCalculateRK4(h, t, anX_array[i], anY_array[i], omegaX, omegaY)
+        t += h
 
-        anX, anY, omX, omY = Calculate(h, t, anX, anY, omX, omY)
-
-        t = t + h
-
-        anX_array[i + 1] = anX
-
-        anY_array[i + 1] = anY
-
-        omX_array[i + 1] = omX
-
-        omY_array[i + 1] = omY
-
-        energy_array[i + 1] = E_mlambda(anX, anY, omX, omY)
-
-    t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
-
-    return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
+    return np.linspace(t_start, t_end, num_steps + 1, endpoint=True), anX_array, anY_array
 
 
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(h, 0, 50, m.pi/2, m.pi, 0, 0)
-
-print(time.time() - timestamp)
-
+t_array, anX_sim, anY_sim = QuickDPRK4(h, 0, 50, m.pi/2, m.pi, 0, 0)
 
 
 anim_h = h*skip_size
@@ -215,13 +184,11 @@ trace, = ax.plot([], [], '.-', lw=1, ms=2)
 time_template = 'time = %.1fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
-
 F1 = list(anX_sim)[::skip_size]
 
 F2 = ([], [])
 l_1 = symbolvaluedict[l_1]
 l_2 = symbolvaluedict[l_2]
-# x1_lambda = sp.lambdify(F1, l_1*sp.sin(F1).subs(symbolvaluedict))
 
 x1_data = l_1 * np.sin(F1)
 
@@ -233,8 +200,6 @@ x2_data = l_2 * np.sin(f3) + x1_data
 y2_data = -l_2 * np.cos(f3) + y1_data
 
 t_anim = t_array[::skip_size]
-print(len(t_array))
-print(len(t_anim))
 
 def animate(i):
     thisx = [0, x1_data[i], x2_data[i]]
@@ -250,5 +215,5 @@ def animate(i):
 
 ani = animation.FuncAnimation(
     fig, animate, len(t_anim), interval=anim_h * len(t_anim), blit=True)
-ani.save("animation.gif", writer='pillow', fps=round(1/(anim_h)), dpi=50)
+ani.save("animation.gif", writer='pillow', fps=round(1/anim_h), dpi=50)
 plt.show()
