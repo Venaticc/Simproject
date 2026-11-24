@@ -86,6 +86,7 @@ def DeriveFunctions(svd):
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 
 epsilon = sp.Symbol('epsilon')
+epsilon = 0.000000000001
 
 # X_n+1 = X_n + h*fX
 def fX(t, angleX, angleY, omegaX, omegaY):
@@ -148,8 +149,12 @@ def CalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     return angleX, angleY, omegaX, omegaY
 
 
-
-
+def LyapunovMaxiumum(h, num_steps, deltaX_array, deltaY_array):
+    total_d0X = num_steps * sp.log(deltaX_array[0])
+    total_d0Y = num_steps * sp.log(deltaY_array[0])
+    lambda_1X = (sp.Add(*(sp.log(sp.Abs(d)) for d in deltaX_array[:1])) - total_d0X)/(num_steps*h)
+    lambda_1Y = (sp.Add(*(sp.log(sp.Abs(d)) for d in deltaY_array[:1])) - total_d0Y)/(num_steps*h)
+    return lambda_1X, lambda_1Y
 
 
 # Run RK4 step simulation for a double pendulum
@@ -167,8 +172,10 @@ def SimDPRK4Lyapunov(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
     omY_array = np.zeros(num_steps + 1)
     omY_array[0] = omegaY
 
-    energy_array = np.zeros(num_steps + 1)
-    energy_array[0] = E_mlambda(angleX, angleY, omegaX, omegaY)
+    deltaX_array = list(np.zeros(num_steps + 1))
+    deltaX_array[0] = epsilon
+    deltaY_array = list(np.zeros(num_steps + 1))
+    deltaY_array[0] = epsilon
 
     for i in np.arange(num_steps):
         anX = anX_array[i]
@@ -177,6 +184,7 @@ def SimDPRK4Lyapunov(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
         omY = omY_array[i]
 
         anX, anY, omX, omY = CalculateRK4(h, t, anX, anY, omX, omY)
+        DanX, DanY, DomX, DomY = CalculateRK4(h, t, anX + epsilon, anY + epsilon, omX, omY)
 
         t = t + h
 
@@ -185,17 +193,19 @@ def SimDPRK4Lyapunov(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
         omX_array[i + 1] = omX
         omY_array[i + 1] = omY
 
-    t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
+        deltaX_array[i + 1] = DanX - anX
+        deltaY_array[i + 1] = DanY - anY
 
-    return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
+    LyapunovMaxiumum(h, num_steps, deltaX_array, deltaY_array)
+
+    return LyapunovMaxiumum(h, num_steps, deltaX_array, deltaY_array)
 
 # time to define all functions and expressions
 print(time.time() - timestamp)
 timestamp = time.time()
 
 # Run the simulation
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimDPRK4Lyapunov(0.001, 0, 20, m.pi, 1, 0, 0)
-
+print(SimDPRK4Lyapunov(0.1, 0, 1, m.pi, 1, 0, 0))
 
 # Time to run sim
 print(time.time() - timestamp)

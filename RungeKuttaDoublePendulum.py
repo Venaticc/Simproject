@@ -196,7 +196,7 @@ print(time.time() - timestamp)
 timestamp = time.time()
 
 # Run the simulation
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.001, 0, 20, m.pi, 1, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.1, 0, 1, m.pi, 1, 0, 0)
 
 LeX = LyapunovExponent(omX_sim)
 LeY = LyapunovExponent(omY_sim)

@@ -271,4 +271,5 @@ def animate(i):
 
 ani = animation.FuncAnimation(
     fig, animate, len(t_anim), interval=anim_h * len(t_anim), blit=True)
+ani.save("animation.gif", writer="imagemagick")
 plt.show()
