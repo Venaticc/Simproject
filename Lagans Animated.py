@@ -22,7 +22,7 @@ l_sum = symbolvaluedict[l_1] + symbolvaluedict[l_2]
 
 
 h = 0.001
-skip_size = 100
+skip_size = 50
 
 
 def DeriveFunctions(svd):
@@ -215,5 +215,5 @@ def animate(i):
 
 ani = animation.FuncAnimation(
     fig, animate, len(t_anim), interval=anim_h * len(t_anim), blit=True)
-ani.save("animation.gif", writer='pillow', fps=round(1/anim_h), dpi=50)
+ani.save("animation.gif", writer='pillow', fps=round(1/anim_h), dpi=100)
 plt.show()
