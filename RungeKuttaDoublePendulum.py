@@ -44,7 +44,7 @@ def DeriveFunctions(svd):
 
     # Kinetic energy E_k = mv^2/2
     E_k1 = m_1 * l_1 * l_1 * x1 * x1 / 2
-    E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_2 * sp.cos(y0 - x0)) / 2
+    E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_1 * sp.cos(y0 - x0)) / 2
 
     # Potential energy E_p = mgh
     E_p1 = m_1 * g * l_1 * (1-sp.cos(x0))
@@ -117,7 +117,6 @@ def gY(t, angleX, angleY, omegaX, omegaY):
 E_mlambda = sp.lambdify((X0, Y0, X1, Y1), E_m)
 
 
-# Find RK4 for a double pendulum
 def CalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     k_1X = h*fX(t, angleX, angleY, omegaX, omegaY) # X
     k_1Y = h*fY(t, angleX, angleY, omegaX, omegaY) # Y
@@ -132,7 +131,7 @@ def CalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     r_2Y = h*gY(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
 
     k_3X = h*fX(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
-    k_3Y = h*fY(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
+    k_3Y = h*fY(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
 
     r_3X = h*gX(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
     r_3Y = h*gY(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
@@ -152,51 +151,35 @@ def CalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     return angleX, angleY, omegaX, omegaY
 
 
+
 # Run RK4 step simulation for a double pendulum
 def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
     num_steps = int((t_end - t_start)/h)
-
     t = t_start
 
-    anX_array = np.zeros(num_steps + 1)
-    anX_array[0] = angleX % (2*m.pi)
-    anY_array = np.zeros(num_steps + 1)
-    anY_array[0] = angleY % (2*m.pi)
-    omX_array = np.zeros(num_steps + 1)
-    omX_array[0] = omegaX
-    omY_array = np.zeros(num_steps + 1)
-    omY_array[0] = omegaY
+    states = np.zeros((num_steps + 1, 4))
+    states[0] = np.array([angleX, angleY, omegaX, omegaY])
 
     energy_array = np.zeros(num_steps + 1)
     energy_array[0] = E_mlambda(angleX, angleY, omegaX, omegaY)
 
     for i in np.arange(num_steps):
-        anX = anX_array[i]
-        anY = anY_array[i]
-        omX = omX_array[i]
-        omY = omY_array[i]
-
-        anX, anY, omX, omY = CalculateRK4(h, t, anX, anY, omX, omY)
+        states[i + 1] = CalculateRK4(h, t, *states[i])
 
         t = t + h
 
-        anX_array[i + 1] = anX
-        anY_array[i + 1] = anY
-        omX_array[i + 1] = omX
-        omY_array[i + 1] = omY
-
-        energy_array[i + 1] = E_mlambda(anX, anY, omX, omY)
+        energy_array[i + 1] = E_mlambda(*states[i + 1])
 
     t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
 
-    return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
+    return t_array, *states.T, energy_array
 
 # time to define all functions and expressions
 print(time.time() - timestamp)
 timestamp = time.time()
 
 # Run the simulation
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.1, 0, 1, m.pi, 1, 0, 0)
+t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.0001, 0, 20, m.pi/2, m.pi, 0, 0)
 
 LeX = LyapunovExponent(omX_sim)
 LeY = LyapunovExponent(omY_sim)
@@ -237,6 +220,7 @@ if True:
     # an assortment of data
     print("Starting E_m:", E_m_array[0])
     print("E max - min:", max(E_m_array) - min(E_m_array))
+    print("Largest percentual deviation: " + str(100*(max(E_m_array) - min(E_m_array))/E_m_array[0]) + "%")
     print(np.std(E_m_array, ddof=0))
 
 

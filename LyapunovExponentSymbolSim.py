@@ -39,7 +39,7 @@ def DeriveFunctions(svd):
 
     # Kinetic energy E_k = mv^2/2
     E_k1 = m_1 * l_1 * l_1 * x1 * x1 / 2
-    E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_2 * sp.cos(y0 - x0)) / 2
+    E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_1 * sp.cos(y0 - x0)) / 2
 
     # Potential energy E_p = mgh
     E_p1 = m_1 * g * l_1 * (1-sp.cos(x0))
@@ -86,32 +86,29 @@ def DeriveFunctions(svd):
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 
 epsilon = sp.Symbol('epsilon')
-epsilon = 0.000000000001
+epsilon = 0.000000001
 
-# X_n+1 = X_n + h*fX
+
 def fX(t, angleX, angleY, omegaX, omegaY):
     return omegaX
 
 
-# omegaX_n+1 = omegaX_n + h*gX
 gXlambda = sp.lambdify((X0, Y0, X1, Y1), X2)
 def gX(t, angleX, angleY, omegaX, omegaY):
-    return X2.subs({X0:angleX, Y0:angleY, X1:omegaX, Y1:omegaY})
+    return gXlambda(angleX, angleY, omegaX, omegaY)
 
 
-# Y_n+1 = Y_n + h*fY
 def fY(t, angleX, angleY, omegaX, omegaY):
     return omegaY
 
 
-# omegaY_n+1 = omegaY_n + h*gY
 gYlambda = sp.lambdify((X0, Y0, X1, Y1), Y2)
 def gY(t, angleX, angleY, omegaX, omegaY):
-    return Y2.subs({X0:angleX, Y0:angleY, X1:omegaX, Y1:omegaY})
+    return gYlambda(angleX, angleY, omegaX, omegaY)
 
 
-# total mechanical energy
 E_mlambda = sp.lambdify((X0, Y0, X1, Y1), E_m)
+
 
 
 # Find RK4 for a double pendulum
@@ -129,7 +126,7 @@ def CalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     r_2Y = h*gY(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
 
     k_3X = h*fX(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
-    k_3Y = h*fY(t+h/2, angleX + k_1X/2, angleY + k_1Y/2, omegaX + r_1X/2, omegaY + r_1Y/2)
+    k_3Y = h*fY(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
 
     r_3X = h*gX(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
     r_3Y = h*gY(t+h/2, angleX + k_2X/2, angleY + k_2Y/2, omegaX + r_2X/2, omegaY + r_2Y/2)
@@ -149,63 +146,45 @@ def CalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     return angleX, angleY, omegaX, omegaY
 
 
-def LyapunovMaxiumum(h, num_steps, deltaX_array, deltaY_array):
-    total_d0X = num_steps * sp.log(deltaX_array[0])
-    total_d0Y = num_steps * sp.log(deltaY_array[0])
-    lambda_1X = (sp.Add(*(sp.log(sp.Abs(d)) for d in deltaX_array[:1])) - total_d0X)/(num_steps*h)
-    lambda_1Y = (sp.Add(*(sp.log(sp.Abs(d)) for d in deltaY_array[:1])) - total_d0Y)/(num_steps*h)
-    return lambda_1X, lambda_1Y
+def LyapunovMaxiumum(h, num_steps, delta_array):
+    print(np.log(np.abs(delta_array[1:])), "hej")
+    lambda_1 = np.sum(np.log(np.abs(delta_array[1:]) / np.abs(delta_array[0]))) / (num_steps*h)
+    return lambda_1
 
 
 # Run RK4 step simulation for a double pendulum
-def SimDPRK4Lyapunov(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
+def SimDPRK4Lyapunov(h, t_start, t_end, angleX, angleY, omegaX, omegaY, epsilon):
     num_steps = int((t_end - t_start)/h)
 
     t = t_start
 
-    anX_array = np.zeros(num_steps + 1)
-    anX_array[0] = angleX
-    anY_array = np.zeros(num_steps + 1)
-    anY_array[0] = angleY
-    omX_array = np.zeros(num_steps + 1)
-    omX_array[0] = omegaX
-    omY_array = np.zeros(num_steps + 1)
-    omY_array[0] = omegaY
+    states = np.zeros((num_steps + 1, 4))
+    states[0] = np.array([angleX, angleY, omegaX, omegaY])
 
-    deltaX_array = list(np.zeros(num_steps + 1))
-    deltaX_array[0] = epsilon
-    deltaY_array = list(np.zeros(num_steps + 1))
-    deltaY_array[0] = epsilon
+    statesprime = states
+    statesprime[0] = np.array([epsilon, 0, 0, 0])
 
     for i in np.arange(num_steps):
-        anX = anX_array[i]
-        anY = anY_array[i]
-        omX = omX_array[i]
-        omY = omY_array[i]
 
-        anX, anY, omX, omY = CalculateRK4(h, t, anX, anY, omX, omY)
-        DanX, DanY, DomX, DomY = CalculateRK4(h, t, anX + epsilon, anY + epsilon, omX, omY)
+        states = CalculateRK4(h, t, *states)
+        statesprime = CalculateRK4(h, t, *statesprime)
 
         t = t + h
 
-        anX_array[i + 1] = anX
-        anY_array[i + 1] = anY
-        omX_array[i + 1] = omX
-        omY_array[i + 1] = omY
+    print(deltaX_array)
+    print(deltaY_array)
 
-        deltaX_array[i + 1] = DanX - anX
-        deltaY_array[i + 1] = DanY - anY
+    lambda_1X = LyapunovMaxiumum(h, num_steps, deltaX_array)
+    lambda_1Y = LyapunovMaxiumum(h, num_steps, deltaY_array)
 
-    LyapunovMaxiumum(h, num_steps, deltaX_array, deltaY_array)
-
-    return LyapunovMaxiumum(h, num_steps, deltaX_array, deltaY_array)
+    return lambda_1X, lambda_1Y
 
 # time to define all functions and expressions
 print(time.time() - timestamp)
 timestamp = time.time()
 
 # Run the simulation
-print(SimDPRK4Lyapunov(0.1, 0, 1, m.pi, 1, 0, 0))
+print(SimDPRK4Lyapunov(0.05, 0, 10, m.pi, 2, 0, 0))
 
 # Time to run sim
 print(time.time() - timestamp)

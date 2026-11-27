@@ -4,6 +4,7 @@ import sympy as sp
 import matplotlib.pyplot as plt
 import time
 import matplotlib.animation as animation
+# NEEDS PILLOW!!!
 
 timestamp = time.time()
 
@@ -17,12 +18,8 @@ l_2 = sp.Symbol('l_2')
 # assign values to constants
 symbolvaluedict = {g: 9.82, m_1: 10, m_2: 2, l_1: 3, l_2: 4}
 
-
-l_sum = symbolvaluedict[l_1] + symbolvaluedict[l_2]
-
-
 h = 0.001
-skip_size = 50
+skip_size = 10
 
 
 def DeriveFunctions(svd):
@@ -46,7 +43,7 @@ def DeriveFunctions(svd):
 
     # Kinetic energy E_k = mv^2/2
     E_k1 = m_1 * l_1 * l_1 * x1 * x1 / 2
-    E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_2 * sp.cos(y0 - x0)) / 2
+    E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_1 * sp.cos(y0 - x0)) / 2
 
     # Potential energy E_p = mgh
     E_p1 = m_1 * g * l_1 * (1 - sp.cos(x0))
@@ -97,8 +94,6 @@ def fX(t, angleX, angleY, omegaX, omegaY):
 
 
 gXlambda = sp.lambdify((X0, Y0, X1, Y1), X2)
-
-
 def gX(t, angleX, angleY, omegaX, omegaY):
     return gXlambda(angleX, angleY, omegaX, omegaY)
 
@@ -108,8 +103,6 @@ def fY(t, angleX, angleY, omegaX, omegaY):
 
 
 gYlambda = sp.lambdify((X0, Y0, X1, Y1), Y2)
-
-
 def gY(t, angleX, angleY, omegaX, omegaY):
     return gYlambda(angleX, angleY, omegaX, omegaY)
 
@@ -131,7 +124,7 @@ def QuickCalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     r_2Y = h * gY(t + h / 2, angleX + k_1X / 2, angleY + k_1Y / 2, omegaX + r_1X / 2, omegaY + r_1Y / 2)
 
     k_3X = h * fX(t + h / 2, angleX + k_2X / 2, angleY + k_2Y / 2, omegaX + r_2X / 2, omegaY + r_2Y / 2)
-    k_3Y = h * fY(t + h / 2, angleX + k_1X / 2, angleY + k_1Y / 2, omegaX + r_1X / 2, omegaY + r_1Y / 2)
+    k_3Y = h * fY(t + h / 2, angleX + k_2X / 2, angleY + k_2Y / 2, omegaX + r_2X / 2, omegaY + r_2Y / 2)
 
     r_3X = h * gX(t + h / 2, angleX + k_2X / 2, angleY + k_2Y / 2, omegaX + r_2X / 2, omegaY + r_2Y / 2)
     r_3Y = h * gY(t + h / 2, angleX + k_2X / 2, angleY + k_2Y / 2, omegaX + r_2X / 2, omegaY + r_2Y / 2)
@@ -174,21 +167,23 @@ t_array, anX_sim, anY_sim = QuickDPRK4(h, 0, 50, m.pi/2, m.pi, 0, 0)
 
 anim_h = h*skip_size
 
+l_1 = symbolvaluedict[l_1]
+l_2 = symbolvaluedict[l_2]
+l_sum = l_1 + l_2
+
 fig = plt.figure(figsize=(6, 5))
 ax = fig.add_subplot(autoscale_on=False, xlim=(-l_sum, l_sum), ylim=(-l_sum, l_sum))
 ax.set_aspect('equal')
 ax.grid()
 
 line, = ax.plot([], [], 'o-', lw=2)
-trace, = ax.plot([], [], '.-', lw=1, ms=2)
+trace, = ax.plot([], [], '-', lw=1, ms=2)
 time_template = 'time = %.1fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
 F1 = list(anX_sim)[::skip_size]
 
 F2 = ([], [])
-l_1 = symbolvaluedict[l_1]
-l_2 = symbolvaluedict[l_2]
 
 x1_data = l_1 * np.sin(F1)
 
@@ -215,5 +210,5 @@ def animate(i):
 
 ani = animation.FuncAnimation(
     fig, animate, len(t_anim), interval=anim_h * len(t_anim), blit=True)
-ani.save("animation.gif", writer='pillow', fps=round(1/anim_h), dpi=100)
+#ani.save("animation.gif", writer='pillow', fps=round(1/anim_h), dpi=100)
 plt.show()

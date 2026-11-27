@@ -1,5 +1,5 @@
 import numpy as np
 
-a = np.arange(0, 100, 1)
+a = np.zeros((10,4))
 
-print(a[1:])
+print(a)
