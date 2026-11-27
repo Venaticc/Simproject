@@ -19,7 +19,7 @@ l_2 = sp.Symbol('l_2')
 symbolvaluedict = {g: 9.82, m_1: 10, m_2: 2, l_1: 3, l_2: 4}
 
 h = 0.001
-skip_size = 10
+skip_size = 50
 
 
 def DeriveFunctions(svd):
@@ -43,7 +43,7 @@ def DeriveFunctions(svd):
 
     # Kinetic energy E_k = mv^2/2
     E_k1 = m_1 * l_1 * l_1 * x1 * x1 / 2
-    E_k2 = m_2 * (x1 * x1 * l_1 * l_1 + y1 * y1 * l_2 * l_2 + 2 * x1 * y1 * l_2 * l_1 * sp.cos(y0 - x0)) / 2
+    E_k2 = m_2 * (x1 * x1 * l_1 * l_1  +  y1 * y1 * l_2 * l_2  +  2 * x1 * y1 * l_2 * l_1 * sp.cos(y0 - x0)) / 2
 
     # Potential energy E_p = mgh
     E_p1 = m_1 * g * l_1 * (1 - sp.cos(x0))
@@ -210,5 +210,5 @@ def animate(i):
 
 ani = animation.FuncAnimation(
     fig, animate, len(t_anim), interval=anim_h * len(t_anim), blit=True)
-#ani.save("animation.gif", writer='pillow', fps=round(1/anim_h), dpi=100)
+if 0: ani.save("animation.gif", writer='pillow', fps=round(1/anim_h), dpi=100)
 plt.show()
