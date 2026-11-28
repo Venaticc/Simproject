@@ -23,7 +23,6 @@ def DeriveFunctions(svd):
 
     x0 = sp.Function('x0')(t)   # theta
     x1 = x0.diff(t)             # theta prime
-    x2 = x1.diff(t)             # theta bis
 
     X0 = sp.Function('X0')(t)
     X1 = sp.Function('X1')(t)   # replacement function, magic trick
@@ -31,7 +30,6 @@ def DeriveFunctions(svd):
 
     y0 = sp.Function('y0')(t)   # phi
     y1 = y0.diff(t)             # phi prime
-    y2 = y1.diff(t)             # phi bis
 
     Y0 = sp.Function('Y0')(t)
     Y1 = sp.Function('Y1')(t)   # also magic tricks
@@ -149,8 +147,11 @@ Jlambda = sp.lambdify((X0, Y0, X1, Y1), J_sym, 'numpy')
 
 # Run RK4 step simulation for a double pendulum
 def SimDPRK4LySpectrum(h, t_start, t_end, angleX, angleY, omegaX, omegaY, t_q):
-    num_q = int((t_q - t_start)/h)
-    num_steps = int((t_end - t_q)/h)
+    num_q = (t_q - t_start)/h
+    num_steps = (t_end - t_q)/h
+    if num_q % 1 != 0 or num_steps % 1 != 0:
+        raise ValueError('h must divde cleanly')
+    num_q, num_steps = int(num_q), int(num_steps)
 
     t = t_start
 
@@ -173,7 +174,6 @@ def SimDPRK4LySpectrum(h, t_start, t_end, angleX, angleY, omegaX, omegaY, t_q):
         M = I + J*h
 
         Q, R = np.linalg.qr(M @ Q)
-
         Sigma += np.log(np.abs(np.diag(R)))
 
         states = np.array(CalculateRK4(h, t, *states))
@@ -188,7 +188,7 @@ print(time.time() - timestamp)
 timestamp = time.time()
 
 # Run the simulation
-print(SimDPRK4LySpectrum(0.001, 0, 200, -2, 2, 0, 0, 10))
+print(SimDPRK4LySpectrum(0.001, 0, 200, -2, 2, 0, 0, 20))
 
 # Time to run sim
 print(time.time() - timestamp)

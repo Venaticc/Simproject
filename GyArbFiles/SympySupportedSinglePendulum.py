@@ -31,7 +31,6 @@ def DeriveFunctions(svd):
 
     x0 = sp.Function('x0')(t)   # theta
     x1 = x0.diff(t)             # theta prime
-    x2 = x1.diff(t)             # theta bis
 
     X0 = sp.Function('X0')(t)
     X1 = sp.Function('X1')(t)   # replacement function, magic trick
