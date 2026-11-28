@@ -101,7 +101,7 @@ Y2lambda = sp.lambdify((X0, Y0, X1, Y1), Y2)
 
 E_mlambda = sp.lambdify((X0, Y0, X1, Y1), E_m)
 
-def CalculateESM(h, t, angleX, angleY, omegaX, omegaY):
+def CalculateDPESM(h, t, angleX, angleY, omegaX, omegaY):
     omegaX = h*X2lambda(angleX, angleY, omegaX, omegaY)
     omegaY = h*Y2lambda(angleX, angleY, omegaX, omegaY)
 
@@ -122,7 +122,7 @@ def SimulateDPESM(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
     energy_array[0] = E_mlambda(angleX, angleY, omegaX, omegaY)
 
     for i in np.arange(num_steps):
-        states[i + 1] = CalculateESM(h, t, *states[i])
+        states[i + 1] = CalculateDPESM(h, t, *states[i])
 
         t = t + h
 

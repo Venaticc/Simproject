@@ -55,8 +55,6 @@ def DeriveFunctions(svd):
     x_expr = x_expr.subs(X1.diff(t),X2)
     x_expr = x_expr.subs(x0,X0)
 
-    # with respect to phi
-
     # replacing symbols
     E_m = E_m.subs({x0:X0, x1:X1})
 
@@ -75,67 +73,47 @@ def DeriveFunctions(svd):
 
 E_m, X0, X1, X2 = DeriveFunctions(symbolvaluedict)
 
+print(E_m, X0, X1, X2)
+
 X2lambda = sp.lambdify((X0, X1), X2)
 
 E_mlambda = sp.lambdify((X0, X1), E_m)
 
-def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
-    num_steps = int(t_end/h)
+def CalculateSPESM(h, t, angleX, omegaX):
 
-    anX_array = np.zeros(num_steps + 1)
-    anX_array[0] = angleX % (2*m.pi)
-    anY_array = np.zeros(num_steps + 1)
-    anY_array[0] = angleY % (2*m.pi)
-    omX_array = np.zeros(num_steps + 1)
-    omX_array[0] = omegaX
-    omY_array = np.zeros(num_steps + 1)
-    omY_array[0] = omegaY
+    omegaX = omegaX + h*X2lambda(angleX, omegaX)
+
+    angleX = angleX + omegaX*h
+
+    return angleX, omegaX
+
+
+def SimulateSPESM(h, t_start, t_end, angleX, omegaX):
+    num_steps = int((t_end - t_start)/h)
+    t = t_start
+
+    states = np.zeros((num_steps + 1, 2))
+    states[0] = np.array([angleX, omegaX])
 
     energy_array = np.zeros(num_steps + 1)
-    energy_array[0] = E_mfunc(angleX, omegaX, angleY, omegaY)
+    energy_array[0] = E_mlambda(angleX, omegaX)
 
     for i in np.arange(num_steps):
+        states[i + 1] = CalculateSPESM(h, t, *states[i])
+        print(states[i + 1])
 
-        anX = anX_array[i]
-        anY = anY_array[i]
-        omX = omX_array[i]
-        omY = omY_array[i]
+        t = t + h
 
-        alphaX = X2lambda(anX, omX, anY, omY)
-        alphaY = Y2lambda(anX, omX, anY, omY)
+        energy_array[i + 1] = E_mlambda(*states[i + 1])
 
-        omX = omX + alphaX * h
-        omY = omY + alphaY * h
+    t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
 
-        anX = anX + omX * h
-        anY = anY + omY * h
+    return t_array, energy_array, *states.T
 
-        anX_array[i+1] = anX
-        anY_array[i+1] = anY
-        omX_array[i+1] = omX
-        omY_array[i+1] = omY
-
-        energy_array[i+1] = E_mlambda(anX, omX, anY, omY)
-
-    t_array = np.linspace(0, t_end, num_steps + 1)
-
-    return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
-
-def Position(anX_array, anY_array, svd):
-    P1_lambda = lambda x: ((l_1*sp.cos(x)).subs(svd)).evalf(4)
-    P2_lambda = lambda y: ((l_2*sp.cos(y)).subs(svd)).evalf(4)
-
-    P1_array = np.array(list(map(P1_lambda, anX_array)))
-    P2_array = np.array(list(map(P2_lambda, anY_array))) + P1_array
-
-    return P1_array, P2_array
-
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(m.pi, 1, 0, 0, 0.01, 20)
+t_array, E_m_array, anX_sim, omX_sim = SimulateSPESM(0.01, 0, 20, 2, 0)
 
 plt.plot(t_array, anX_sim, '-b')
-plt.plot(t_array, anY_sim, '-r')
 plt.show()
-
 
 res, pdf_array, mean, stdev = EnergyErrorSTD(E_m_array)
 print(mean, stdev)
@@ -153,4 +131,3 @@ plt.plot(t_array, E_m_array, 'g-')
 plt.show()
 print(E_m_array)
 print(omX_sim)
-print(omY_sim)
