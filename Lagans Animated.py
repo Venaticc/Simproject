@@ -150,16 +150,16 @@ def QuickDPRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
     num_steps = int((t_end - t_start) / h)
     t = t_start
 
-    anX_array = np.zeros(num_steps + 1)
-    anX_array[0] = angleX
-    anY_array = np.zeros(num_steps + 1)
-    anY_array[0] = angleY
+    states = np.zeros((num_steps + 1, 4))
+    states[0] = np.array([angleX, angleY, omegaX, omegaY])
 
     for i in np.arange(num_steps):
-        anX_array[i + 1], anY_array[i + 1], omegaX, omegaY = QuickCalculateRK4(h, t, anX_array[i], anY_array[i], omegaX, omegaY)
+        states[i + 1] = QuickCalculateRK4(h, t, *states[i])
         t += h
 
-    return np.linspace(t_start, t_end, num_steps + 1, endpoint=True), anX_array, anY_array
+    states = states.T
+
+    return np.linspace(t_start, t_end, num_steps + 1, endpoint=True), states[0], states[1]
 
 
 t_array, anX_sim, anY_sim = QuickDPRK4(h, 0, 50, m.pi/2, m.pi, 0, 0)

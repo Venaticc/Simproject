@@ -85,9 +85,6 @@ def DeriveFunctions(svd):
 # creates the functions
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 
-epsilon = sp.Symbol('epsilon')
-epsilon = 0.000000001
-
 
 def fX(t, angleX, angleY, omegaX, omegaY):
     return omegaX
@@ -146,46 +143,37 @@ def CalculateRK4(h, t, angleX, angleY, omegaX, omegaY):
     return angleX, angleY, omegaX, omegaY
 
 
-def LyapunovMaxiumum(h, num_steps, delta_array):
-    print(np.log(np.abs(delta_array[1:])), "hej")
-    lambda_1 = np.sum(np.log(np.abs(delta_array[1:]) / np.abs(delta_array[0]))) / (num_steps*h)
-    return lambda_1
-
-
 # Run RK4 step simulation for a double pendulum
-def SimDPRK4Lyapunov(h, t_start, t_end, angleX, angleY, omegaX, omegaY, epsilon):
+def SimDPRK4Lyapunov(h, t_start, t_end, angleX, angleY, omegaX, omegaY, epsilon, renorm_every):
     num_steps = int((t_end - t_start)/h)
 
     t = t_start
 
-    states = np.zeros((num_steps + 1, 4))
-    states[0] = np.array([angleX, angleY, omegaX, omegaY])
+    states = np.array([angleX, angleY, omegaX, omegaY])
 
-    statesprime = states
-    statesprime[0] = np.array([epsilon, 0, 0, 0])
+    statesprime = states + np.array([epsilon, 0, 0, 0])
 
+    Sigma = 0
     for i in np.arange(num_steps):
-
         states = CalculateRK4(h, t, *states)
         statesprime = CalculateRK4(h, t, *statesprime)
-
         t = t + h
 
-    print(deltaX_array)
-    print(deltaY_array)
+        if (i + 1) % renorm_every == 0:
+            delta = np.linalg.norm(np.subtract(statesprime, states))
+            Sigma += np.log(delta/epsilon)
+            statesprime = states + np.subtract(statesprime, states) * epsilon / delta
+            if (i + 1) % (renorm_every * 1000) == 0:
+                print(Sigma / t, t)
 
-    lambda_1X = LyapunovMaxiumum(h, num_steps, deltaX_array)
-    lambda_1Y = LyapunovMaxiumum(h, num_steps, deltaY_array)
-
-    return lambda_1X, lambda_1Y
+    return Sigma / ((num_steps // renorm_every) * renorm_every * h)
 
 # time to define all functions and expressions
 print(time.time() - timestamp)
 timestamp = time.time()
 
 # Run the simulation
-print(SimDPRK4Lyapunov(0.05, 0, 10, m.pi, 2, 0, 0))
+print(SimDPRK4Lyapunov(0.001, 0, 200, -2, 2, 0, 0, 1e-8, 10))
 
 # Time to run sim
 print(time.time() - timestamp)
-

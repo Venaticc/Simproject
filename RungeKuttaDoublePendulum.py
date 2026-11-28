@@ -172,14 +172,14 @@ def SimulateDoublePendulumRK4(h, t_start, t_end, angleX, angleY, omegaX, omegaY)
 
     t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
 
-    return t_array, *states.T, energy_array
+    return t_array, energy_array, *states.T
 
 # time to define all functions and expressions
 print(time.time() - timestamp)
 timestamp = time.time()
 
 # Run the simulation
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = SimulateDoublePendulumRK4(0.0001, 0, 20, m.pi/2, m.pi, 0, 0)
+t_array, E_m_array, anX_sim, anY_sim, omX_sim, omY_sim = SimulateDoublePendulumRK4(0.0001, 0, 20, m.pi/2, m.pi, 0, 0)
 
 LeX = LyapunovExponent(omX_sim)
 LeY = LyapunovExponent(omY_sim)
