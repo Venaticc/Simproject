@@ -163,8 +163,6 @@ def SimDPRK4Lyapunov(h, t_start, t_end, angleX, angleY, omegaX, omegaY, epsilon,
             delta = np.linalg.norm(np.subtract(statesprime, states))
             Sigma += np.log(delta/epsilon)
             statesprime = states + np.subtract(statesprime, states) * epsilon / delta
-            if (i + 1) % (renorm_every * 1000) == 0:
-                print(Sigma / t, t)
 
     return Sigma / ((num_steps // renorm_every) * renorm_every * h)
 

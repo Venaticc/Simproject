@@ -95,83 +95,48 @@ def DeriveFunctions(svd):
 E_m, X0, Y0, X1, Y1, X2, Y2 = DeriveFunctions(symbolvaluedict)
 
 
-def X2func(angleX, omegaX, angleY, omegaY):
-    return X2.subs({X0: angleX, X1: omegaX, Y0: angleY, Y1: omegaY}).evalf(16)
+X2lambda = sp.lambdify((X0, Y0, X1, Y1), X2)
+
+Y2lambda = sp.lambdify((X0, Y0, X1, Y1), Y2)
+
+E_mlambda = sp.lambdify((X0, Y0, X1, Y1), E_m)
+
+def CalculateESM(h, t, angleX, angleY, omegaX, omegaY):
+    omegaX = h*X2lambda(angleX, angleY, omegaX, omegaY)
+    omegaY = h*Y2lambda(angleX, angleY, omegaX, omegaY)
+
+    angleX = omegaX*h
+    angleY = omegaY*h
+
+    return angleX, angleY, omegaX, omegaY
 
 
-X2lambda = sp.lambdify((X0, X1, Y0, Y1), X2)
+def SimulateDPESM(h, t_start, t_end, angleX, angleY, omegaX, omegaY):
+    num_steps = int((t_end - t_start)/h)
+    t = t_start
 
-def Y2func(angleX, omegaX, angleY, omegaY):
-    return Y2.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
-
-Y2lambda = sp.lambdify((X0, X1, Y0, Y1), Y2)
-
-print(Y2lambda(1, 0, 1, 0))
-print(Y2func(1, 0, 1, 0))
-
-def E_mfunc(angleX, omegaX, angleY, omegaY):
-    E_temp = E_m.subs({Y0: angleY, Y1: omegaY, X0: angleX, X1: omegaX}).evalf(16)
-    return E_temp
-
-E_mlambda = sp.lambdify((X0, X1, Y0, Y1), E_m)
-
-def RunDoublePendulum(angleX, angleY, omegaX, omegaY, h, t_end):
-    num_steps = int(t_end/h)
-
-    anX_array = np.zeros(num_steps + 1)
-    anX_array[0] = angleX % (2*m.pi)
-    anY_array = np.zeros(num_steps + 1)
-    anY_array[0] = angleY % (2*m.pi)
-    omX_array = np.zeros(num_steps + 1)
-    omX_array[0] = omegaX
-    omY_array = np.zeros(num_steps + 1)
-    omY_array[0] = omegaY
+    states = np.zeros((num_steps + 1, 4))
+    states[0] = np.array([angleX, angleY, omegaX, omegaY])
 
     energy_array = np.zeros(num_steps + 1)
-    energy_array[0] = E_mfunc(angleX, omegaX, angleY, omegaY)
+    energy_array[0] = E_mlambda(angleX, angleY, omegaX, omegaY)
 
     for i in np.arange(num_steps):
+        states[i + 1] = CalculateESM(h, t, *states[i])
 
-        anX = anX_array[i]
-        anY = anY_array[i]
-        omX = omX_array[i]
-        omY = omY_array[i]
+        t = t + h
 
-        alphaX = X2lambda(anX, omX, anY, omY)
-        alphaY = Y2lambda(anX, omX, anY, omY)
+        energy_array[i + 1] = E_mlambda(*states[i + 1])
 
-        omX = omX + alphaX * h
-        omY = omY + alphaY * h
+    t_array = np.linspace(t_start, t_end, num_steps + 1, endpoint=True)
 
-        anX = anX + omX * h
-        anY = anY + omY * h
+    return t_array, energy_array, *states.T
 
-        anX_array[i+1] = anX
-        anY_array[i+1] = anY
-        omX_array[i+1] = omX
-        omY_array[i+1] = omY
-
-        energy_array[i+1] = E_mlambda(anX, omX, anY, omY)
-
-    t_array = np.linspace(0, t_end, num_steps + 1)
-
-    return t_array, anX_array, anY_array, omX_array, omY_array, energy_array
-
-def Position(anX_array, anY_array, svd):
-    P1_lambda = lambda x: ((l_1*sp.cos(x)).subs(svd)).evalf(4)
-    P2_lambda = lambda y: ((l_2*sp.cos(y)).subs(svd)).evalf(4)
-
-    P1_array = np.array(list(map(P1_lambda, anX_array)))
-    P2_array = np.array(list(map(P2_lambda, anY_array))) + P1_array
-
-    return P1_array, P2_array
-
-t_array, anX_sim, anY_sim, omX_sim, omY_sim, E_m_array = RunDoublePendulum(m.pi, 1, 0, 0, 0.01, 20)
+t_array, E_m_array, anX_sim, anY_sim, omX_sim, omY_sim = SimulateDPESM(0.001, 0, 20, m.pi, 2, 0, 0)
 
 plt.plot(t_array, anX_sim, '-b')
 plt.plot(t_array, anY_sim, '-r')
 plt.show()
-
 
 res, pdf_array, mean, stdev = EnergyErrorSTD(E_m_array)
 print(mean, stdev)
