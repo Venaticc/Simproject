@@ -179,7 +179,7 @@ def SimDPRK4LySpectrum(h, t_start, t_end, angleX, angleY, omegaX, omegaY, t_q):
         states = np.array(CalculateRK4(h, t, *states))
         t += h
 
-    return Sigma
+    return Sigma / (t_end - t_q)
 
 
 
